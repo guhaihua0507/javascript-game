@@ -1,0 +1,5 @@
+syntax: glob
+*/classes
+.settings
+.classpath
+.project
