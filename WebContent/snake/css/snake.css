@@ -1,0 +1,51 @@
+div.panel {
+	position: relative;
+	border: 1px solid blue;
+	width: 400px;
+	height: 400px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.food {
+	position: absolute;
+	border: 1px solid green;
+	width: 18px;
+	height: 18px;
+	background-color: red;
+}
+
+div.snake {
+	position: absolute;
+	border: 1px solid red;
+	width: 18px;
+	height: 18px;
+	background-color: green;
+}
+
+.modal {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-image: url(modal2_.jpg);
+	background-repeat: repeat;
+}
+
+div.dialog {
+	position: relative;
+	border: medium solid gray;
+	width: 200px;
+	height: 100px;
+	text-align: center;
+	background-color: #DFE1E3;
+	color: red;
+	font-size: 30;
+	vertical-align: middle;
+	margin-left: auto;
+	margin-right: auto;
+	line-height: 100px;
+	margin-top: 150px;
+}
+

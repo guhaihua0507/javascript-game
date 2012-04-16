@@ -1,0 +1,29 @@
+div.panel{
+	position: absolute; 
+	border:1 solid blue; 
+	width:480; 
+	height:480;
+}
+
+div.block{
+	position: absolute;
+	border:1px solid green;
+	background-color:gray;
+	font-size:30;
+	padding:30%;
+	color:red;
+}
+div.blank{
+	position: absolute;
+	border:1px solid green;
+	background-color:cyan;
+}
+
+.normal{
+	width:160;
+	height:160;	
+}
+.hard{
+	width:120;
+	height:120;	
+}

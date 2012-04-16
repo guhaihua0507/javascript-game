@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Snake</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="css/snake.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="js/prototype.js"></script>
+<script type="text/javascript" >
+	
+	var SIZE;
+	var PANEL_WIDTH;
+	var PANEL_HEIGHT;
+	function set()
+	{
+		SIZE=20;
+		var panel=$('panel');
+		PANEL_WIDTH=panel.clientWidth/SIZE;
+		PANEL_HEIGHT=panel.clientHeight/SIZE;
+	}
+//-----------Food--------------------------------------------------
+	var Food=function(x,y,panel){
+		var body=document.createElement("div");
+		body.className="food";
+		this.div=body;
+		this.xPos=x;
+		this.yPos=y;
+		panel.appendChild(body);
+	}
+	
+	Food.prototype.setPosition=function(x,y)
+	{
+		this.xPos=x;
+		this.yPos=y;
+	}
+	Food.prototype.draw=function()	
+	{
+		this.div.style.left=this.xPos*SIZE + "px";
+		this.div.style.top=this.yPos*SIZE + "px";
+	}
+	Food.prototype.remove=function()
+	{
+		document.all.panel.removeChild(this.div);
+	}
+//------------Body-----------------------------------------------------
+	var Body=function(x,y){
+		var div=document.createElement("div");
+		div.className="snake";
+		this.view=div;
+		this.xPos=x;
+		this.yPos=y;
+	}
+	Body.prototype.move=function(x,y){
+		this.xPos=x;
+		this.yPos=y;
+	}
+	Body.prototype.getPosition=function()
+	{
+		return {x:this.xPos, y:this.yPos};
+	}
+	Body.prototype.updateView=function()
+	{
+		this.view.style.left=this.xPos*SIZE + "px";
+		this.view.style.top=this.yPos*SIZE + "px";
+	}
+//-------------Snake----------------------------------------------------	
+	var Snake=function(x,y,length,panel){
+		this.bodys=new Array();
+		this.movX=0;
+		this.movY=0;
+		this.moving=false;
+		this.panel=panel;
+		this.initialize(x,y,length);
+	}
+	Snake.prototype={			
+		initialize: function(x,y,length){
+			for(var i=0;i<length;i++)
+			{
+				this.addBody(new Body(x,y));
+			}
+			this.moving=true;
+		},
+		move: function(food){
+			
+			if(this.moving==false)
+				return;
+			var arr=this.bodys;
+			
+			var head=arr[0];
+			var hpos=head.getPosition();
+			
+			var toX=hpos.x+this.movX;
+			var toY=hpos.y+this.movY;
+			if(this.die(toX,toY))
+				return;
+
+			head.move(toX,toY);
+			if(head.xPos==food.xPos&&head.yPos==food.yPos)
+				this.eat(food);
+			var toPos=hpos;
+			for(var i=1;i<arr.length;i++)
+			{
+				var pos=arr[i].getPosition();
+				arr[i].move(toPos.x,toPos.y);
+				toPos=pos;
+			}
+		},
+		updateView: function(){
+			this.bodys.each(function(b){
+				b.updateView();
+			})
+		},
+		eat: function(food){
+			var x=food.xPos;
+			var y=food.yPos;
+			this.addBody(new Body(x,y));
+			addFood();
+		},
+		addBody: function(body){
+			this.panel.appendChild(body.view);
+			this.bodys.push(body);
+		},
+		die: function(x,y){
+			var bdie=(x<0||y<0||x>=PANEL_WIDTH||y>=PANEL_HEIGHT);
+			if(bdie==true)
+			{
+				this.movX=0;
+				this.movY=0;
+				this.moving=false;
+			}
+			return bdie;
+		}
+	}
+//-----------------------------------------------------------------
+	function play()
+	{
+		if(snake.moving==false)
+		{
+			clearTimeout(mID);
+			gameOver();
+		}
+		snake.move(food);
+		snake.updateView();
+	}
+	function addFood()
+	{
+		var x=parseInt(Math.random()*PANEL_WIDTH);
+		var y=parseInt(Math.random()*PANEL_HEIGHT);
+		if(food==null)
+		{
+			var panel=$('panel');
+			food=new Food(x,y,panel);
+		}
+		else
+			food.setPosition(x,y);
+		food.draw();
+	}
+	document.onkeyup=function(event)
+	{
+		if(snake.moving==false)
+			return;
+		if(event.keyCode==37)
+		{
+			if(snake.movX==1)
+				return;
+			snake.movX=-1;
+			snake.movY=0;
+		}
+		else if(event.keyCode==38)
+		{
+			if(snake.movY==1)
+				return;
+			snake.movX=0;
+			snake.movY=-1;
+		}
+		else if(event.keyCode==39)
+		{
+			if(snake.movX==-1)
+				return;
+			snake.movX=1;
+			snake.movY=0;
+		}
+		else if(event.keyCode==40)
+		{
+			if(snake.movY==-1)
+				return;
+			snake.movX=0;
+			snake.movY=1;
+		}
+	}
+	function gameOver()
+	{
+		var message=document.createElement('div');
+		message.className="dialog";
+		message.innerHTML="GAME OVER";
+		
+		message.modalLayer=document.createElement('div');
+		message.modalLayer.appendChild(message);
+		message.modalLayer.className="modal";
+		$('panel').appendChild(message.modalLayer);
+	}
+//--------------------------------------------	
+	var snake=null;
+	var food=null;
+	var bstart=false;
+	var mID;
+
+	window.onload=function(){
+		set();
+		var panel=$('panel');
+		panel.style.left=(window.screen.width-parseInt(panel.offsetWidth))/2
+
+		snake=new Snake(10,10,3,panel);
+		addFood();
+		
+		mID=setInterval('play()',100);
+	}
+</script>
+</head>
+<body>
+	<div class='panel' id='panel'></div>
+</body>
+</html>

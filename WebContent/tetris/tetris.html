@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tetris</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="js/prototype.js"></script>
+<style type="text/css">
+div.main {
+	position: relative;
+	width: 508px;
+	height: 502px;
+	border: 0px solid black;
+	clear: both;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.state {
+	position: relative;
+	width: 200px;
+	height: 500px;
+	border: 1px solid black;
+	float: left;
+}
+
+div.panel {
+	position: relative;
+	border: 1px solid blue;
+	width: 300px;
+	height: 500px;
+	float: left;
+}
+
+div.cube {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	overflow: hidden;
+	border: 1px solid silver;
+	background-color: lime;
+}
+</style>
+<script type="text/javascript">
+	var CUBE_SIZE = 20;
+
+	var Point = function(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	/** class Cube*/
+	var Cube = function(x, y) {
+		this.x = x;
+		this.y = y;
+		this.filled = false;
+		this.uiElement = null;
+	}
+	Cube.prototype = {
+		setFilled : function(b) {
+			this.filled = b;
+		},
+
+		setPosition : function(px, py) {
+			this.x = px;
+			this.y = py;
+		},
+
+		show : function(container) {
+			if (this.filled) {
+				if (this.uiElement == null) {
+					this.uiElement = document.createElement("div");
+					this.uiElement.className = "cube";
+				}
+				this.updateUI(container);
+				container.uiElement.appendChild(this.uiElement);
+			}
+		},
+
+		setColor : function(color) {
+			if (this.uiElement == null) {
+				return;
+			}
+			this.uiElement.style.backgroundColor = color;
+		},
+
+		updateUI : function(container) {
+			if (this.filled) {
+				container.putCube(this);
+			}
+		}
+	}
+	/**class Block*/
+	var Block = function(l, h, shape) {
+		this.width = l;
+		this.height = h;
+		this.posX = 0;
+		this.posY = 0;
+		this.cubes = new Array();
+		this.container = null;
+		this.center = null;
+		this.initialize(shape);
+	}
+	Block.prototype = {
+		initialize : function(shape) {
+			for ( var i = 0; i < this.height; i++) {
+				var lcubes = new Array();
+				for ( var j = 0; j < this.width; j++) {
+					lcubes[j] = new Cube(j, i);
+				}
+				this.cubes[i] = lcubes;
+			}
+			for ( var i = 0; i < shape.length; i++) {
+				var p = shape[i];
+				var cbArray = this.cubes;
+				if (cbArray[p.y][p.x]) {
+					cbArray[p.y][p.x].setFilled(true);
+				}
+			}
+
+			this.center = {
+				x : parseInt(this.width / 2),
+				y : parseInt(this.height / 2)
+			};
+		},
+
+		setLocation : function(x, y) {
+			this.posX = x;
+			this.posY = y;
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					var cb = this.cubes[i][j];
+					cb.setPosition(j + this.posX, i + this.posY);
+				}
+			}
+		},
+
+		show : function() {
+			if (this.container == null)
+				return;
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					var cb = this.cubes[i][j];
+					cb.show(this.container);
+				}
+			}
+		},
+
+		setColor : function(color) {
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					this.cubes[i][j].setColor(color);
+				}
+			}
+		},
+
+		updateUI : function() {
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					var cb = this.cubes[i][j];
+					cb.updateUI(this.container);
+				}
+			}
+		},
+
+		move : function(offsetX, offsetY) {
+			this.posX = this.posX + offsetX;
+			this.posY = this.posY + offsetY;
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					var cb = this.cubes[i][j];
+					cb.setPosition(cb.x + offsetX, cb.y + offsetY);
+				}
+			}
+		},
+
+		transform : function() {
+			if (this.center == null) {
+				return;
+			}
+			for ( var i = 0; i < this.height; i++) {
+				for ( var j = 0; j < this.width; j++) {
+					var newPos = this.getTransformedPosition(j, i);
+					this.cubes[i][j].x = newPos.x;
+					this.cubes[i][j].y = newPos.y;
+				}
+			}
+		},
+
+		getTransformedPosition : function(x, y) {
+			var cube = this.cubes[y][x];
+			if (this.center == null) {
+				return {
+					x : cube.x,
+					y : cube.y
+				};
+			}
+			var centerCube = this.cubes[this.center.y][this.center.x];
+			var offsetCenterX = cube.x - centerCube.x;
+			var offsetCenterY = cube.y - centerCube.y;
+			return {
+				x : centerCube.x + offsetCenterY,
+				y : centerCube.y - offsetCenterX
+			};
+		}
+	}
+
+	/**
+	 *	class GamePanel
+	 */
+	var GamePanel = function(id) {
+		this.uiElement = $(id);
+		this.width;
+		this.height;
+		this.initialize();
+	}
+	GamePanel.prototype = {
+		initialize : function() {
+			this.width = this.uiElement.clientWidth / CUBE_SIZE;
+			this.height = this.uiElement.clientHeight / CUBE_SIZE;
+		},
+
+		putCube : function(cube) {
+			if (cube.uiElement == null)
+				return;
+			var posX = cube.x * CUBE_SIZE;
+			var posY = cube.y * CUBE_SIZE;
+			cube.uiElement.style.left = posX + "px";
+			cube.uiElement.style.top = posY + "px";
+		},
+
+		removeCube : function(cube) {
+			if (cube.uiElement == null)
+				return;
+			this.uiElement.removeChild(cube.uiElement);
+			cube.filled = false;
+			cube.uiElement = null;
+		},
+
+		addBlock : function(block) {
+			block.container = this;
+		}
+	}
+
+	/*
+	 * class Game
+	 */
+	var Game = function(gamePanel, statePanle) {
+		this.CHECK_POINTS = [ 0, 30, 60, 100, 150, 210, 280, 360, 450, 550, 660 ];
+		this.LEVEL_DESCRIPTION = [ 'too easy', 'piece of cake', 'nothing more',
+				'no big deal', 'take a breath', 'get harder', 'cant catch it',
+				'imposible', 'go to hell', 'you must die', 'no one survive' ];
+
+		this.gamePanel = gamePanel;
+		this.statePanel = statePanle;
+		this.currentBlock = null;
+		this.nextBlock = null;
+		this.cubes = new Array();
+
+		this.running = false;
+		this.speed = 300;
+		this.level = -1;
+
+		this.totalBlockCount = 0;
+		this.point = 0;
+		this.lineCount = 0;
+		this.levelUIElement = null;
+		this.lineCountUIElement = null;
+		this.pointUIElement = null;
+
+		this.initialize();
+	}
+	Game.prototype = {
+		initialize : function() {
+			for ( var i = 0; i < this.gamePanel.height; i++) {
+				var line = new Array();
+				for ( var j = 0; j < this.gamePanel.width; j++) {
+					line[j] = new Cube(j, i);
+				}
+				this.cubes[i] = line;
+			}
+
+			var self = this;
+			document.onkeydown = function(event) {
+				if (self.running == true && event.keyCode == 37) {
+					if (self.reachLeft() == false) {
+						self.move(-1, 0);
+					}
+				} else if (self.running == true && event.keyCode == 39) {
+					if (self.reachRight() == false) {
+						self.move(1, 0);
+					}
+				} else if (self.running == true && event.keyCode == 40) {
+					if (self.reachBottom() == false) {
+						self.move(0, 1);
+					}
+				} else if (self.running == true && event.keyCode == 32) {
+					if (self.canTransform() == true) {
+						self.currentBlock.transform();
+						self.currentBlock.updateUI();
+					}
+				}
+			}
+		},
+
+		start : function() {
+			this.running = true;
+			this.run();
+		},
+
+		run : function() {
+			if (this.running == false)
+				return;
+			if (this.currentBlock == null || this.reachBottom()) {
+				if (this.currentBlock != null) {
+					this.replaceCubes(this.currentBlock);
+				}
+				this.gameEventCheck();
+				if (this.running == false) {
+					alert('Game Over');
+					return;
+				}
+				this.initNewBlock();
+			} else {
+				this.fall();
+			}
+			setTimeout(this.run.bind(this), this.speed);
+		},
+
+		initNewBlock : function() {
+			if (this.currentBlock == null) {
+				this.currentBlock = BlockFactory.createBlock();
+				this.gamePanel.addBlock(this.currentBlock);
+				var xPos = parseInt((this.gamePanel.width - this.currentBlock.width) / 2);
+				this.currentBlock.setLocation(xPos, 0);
+				this.currentBlock.show();
+				this.currentBlock.setColor(ColorFactory.createColor());
+			} else {
+				this.currentBlock = this.nextBlock;
+				this.gamePanel.addBlock(this.currentBlock);
+				var xPos = parseInt((this.gamePanel.width - this.currentBlock.width) / 2);
+				this.currentBlock.setLocation(xPos, 0);
+				this.currentBlock.show();
+			}
+
+			this.totalBlockCount++;
+			/*
+			 * get the next block and display
+			 */
+			this.nextBlock = BlockFactory.createBlock();
+			this.statePanel.addBlock(this.nextBlock);
+			var xPos = parseInt((this.statePanel.width - this.nextBlock.width) / 2);
+			this.nextBlock.setLocation(xPos, 0);
+			this.nextBlock.show();
+			this.nextBlock.setColor(ColorFactory.createColor());
+
+			/*
+			 * show level discription
+			 */
+			var checkPoint = this.getCheckPoint();
+			if (checkPoint > this.level) {
+				this.level = checkPoint;
+				this.speed -= 20;
+				if (this.levelUIElement) {
+					this.levelUIElement.innerHTML = this.LEVEL_DESCRIPTION[this.level];
+				}
+			}
+		},
+
+		fall : function() {
+			this.currentBlock.move(0, 1);
+			this.currentBlock.updateUI();
+		},
+
+		move : function(offsetX, offsetY) {
+			if (this.currentBlock == null)
+				return;
+			this.currentBlock.move(offsetX, offsetY);
+			this.currentBlock.updateUI();
+		},
+
+		reachBottom : function() {
+			var blcubes = this.currentBlock.cubes;
+			for ( var i = 0; i < blcubes.length; i++) {
+				var lcubes = blcubes[i];
+				for ( var j = 0; j < lcubes.length; j++) {
+					if (lcubes[j].filled == false) {
+						continue;
+					}
+					if (lcubes[j].y >= this.gamePanel.height - 1) {
+						return true;
+					} else if (this.cubes[lcubes[j].y + 1][lcubes[j].x].filled == true) {
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+
+		reachLeft : function() {
+			var blcubes = this.currentBlock.cubes;
+			for ( var i = 0; i < blcubes.length; i++) {
+				var lcubes = blcubes[i];
+				for ( var j = 0; j < lcubes.length; j++) {
+					if (lcubes[j].filled == false) {
+						continue;
+					}
+					if (lcubes[j].x <= 0) {
+						return true;
+					} else if (this.cubes[lcubes[j].y][lcubes[j].x - 1].filled == true) {
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+
+		reachRight : function() {
+			var blcubes = this.currentBlock.cubes;
+			for ( var i = 0; i < blcubes.length; i++) {
+				var lcubes = blcubes[i];
+				for ( var j = 0; j < lcubes.length; j++) {
+					if (lcubes[j].filled == false) {
+						continue;
+					}
+					if (lcubes[j].x >= this.gamePanel.width - 1) {
+						return true;
+					} else if (this.cubes[lcubes[j].y][lcubes[j].x + 1].filled == true) {
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+
+		canTransform : function() {
+			for ( var i = 0; i < this.currentBlock.height; i++) {
+				for ( var j = 0; j < this.currentBlock.width; j++) {
+					var cube = this.currentBlock.cubes[i][j];
+					if (cube.filled == false)
+						continue;
+
+					var newPos = this.currentBlock.getTransformedPosition(j, i);
+					if (newPos.x < 0 || newPos.x > this.gamePanel.width - 1
+							|| newPos.y < 0
+							|| newPos.y > this.gamePanel.height - 1)
+						return false;
+					if (this.cubes[newPos.y][newPos.x].filled == true)
+						return false;
+				}
+			}
+			return true;
+		},
+
+		gameEventCheck : function() {
+			if (this.gameOver() == true) {
+				this.running = false;
+				return;
+			}
+			this.removeFullLine();
+		},
+
+		gameOver : function() {
+			var line0 = this.cubes[0];
+			for ( var i = 0; i < line0.length; i++) {
+				if (line0[i].filled == true) {
+					return true;
+				}
+			}
+			return false;
+		},
+
+		removeFullLine : function() {
+			var hasRemoved = false;
+			for ( var i = 0; i < this.cubes.length; i++) {
+				var lcubes = this.cubes[i];
+				var full = true;
+				for ( var j = 0; j < lcubes.length; j++) {
+					if (lcubes[j].filled == false) {
+						full = false;
+						break;
+					}
+				}
+				if (full == true) {
+					this.removeCubes(lcubes);
+					this.point += 100;
+					this.lineCount++;
+					this.fallAboveLines(i);
+					hasRemoved = true;
+				}
+			}
+			if (hasRemoved) {
+				this.updateGameResults();
+			}
+		},
+
+		removeCubes : function(cubes) {
+			for ( var i = 0; i < cubes.length; i++) {
+				if (cubes[i].filled == true) {
+					this.gamePanel.removeCube(cubes[i]);
+				}
+			}
+		},
+
+		fallAboveLines : function(lineNo) {
+			for ( var i = lineNo - 1; i >= 0; i--) {
+				var line = this.cubes[i];
+				var nextline = this.cubes[i + 1];
+				for ( var j = 0; j < line.length; j++) {
+					nextline[j].filled = line[j].filled;
+					nextline[j].uiElement = line[j].uiElement;
+					nextline[j].updateUI(this.gamePanel);
+				}
+			}
+		},
+
+		replaceCubes : function(block) {
+			for ( var i = 0; i < block.height; i++) {
+				for ( var j = 0; j < block.width; j++) {
+					if (block.cubes[i][j].filled == true) {
+						var x = block.cubes[i][j].x;
+						var y = block.cubes[i][j].y;
+						this.cubes[y][x] = block.cubes[i][j];
+					}
+				}
+			}
+		},
+
+		updateGameResults : function() {
+			if (this.lineCountUIElement) {
+				this.lineCountUIElement.innerHTML = this.lineCount;
+			}
+			if (this.pointUIElement) {
+				this.pointUIElement.innerHTML = this.point;
+			}
+		},
+
+		getCheckPoint : function() {
+			if (this.totalBlockCount <= 0) {
+				return 0;
+			}
+			for ( var i = 0; i < this.CHECK_POINTS.length - 1; i++) {
+				if (this.totalBlockCount > this.CHECK_POINTS[i]
+						&& this.totalBlockCount <= this.CHECK_POINTS[i + 1]) {
+					return i;
+				}
+			}
+			return this.CHECK_POINTS.length - 1;
+		}
+	}
+
+	/** block factory*/
+	var BlockFactory = {
+		createBlock : function() {
+			var type = parseInt(Math.random() * 8);
+			switch (type) {
+			case 0: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(1, 0);
+				var p3 = new Point(1, 1);
+				var p4 = new Point(2, 1);
+				var shape = [ p1, p2, p3, p4 ];
+				return new Block(3, 2, shape);
+			}
+			case 1: {
+				var p1 = new Point(1, 0);
+				var p2 = new Point(2, 0);
+				var p3 = new Point(0, 1);
+				var p4 = new Point(1, 1);
+				var shape = [ p1, p2, p3, p4 ];
+				return new Block(3, 2, shape);
+			}
+			case 2: {
+				var p1 = new Point(1, 0);
+				var p2 = new Point(0, 1);
+				var p3 = new Point(1, 1);
+				var p4 = new Point(2, 1);
+				var shape = [ p1, p2, p3, p4 ];
+				return new Block(3, 2, shape);
+			}
+			case 3: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(1, 0);
+				var p3 = new Point(0, 1);
+				var p4 = new Point(0, 2);
+				var shape = [ p1, p2, p3, p4 ];
+				return new Block(2, 3, shape);
+			}
+			case 4: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(0, 1);
+				var p3 = new Point(0, 2);
+				var shape = [ p1, p2, p3 ];
+				return new Block(1, 3, shape);
+			}
+			case 5: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(1, 0);
+				var p3 = new Point(0, 1);
+				var p4 = new Point(1, 1);
+				var shape = [ p1, p2, p3, p4 ];
+				var block = new Block(2, 2, shape);
+				block.center = null;
+				return block;
+			}
+			case 6: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(1, 0);
+				var p3 = new Point(2, 0);
+				var p4 = new Point(0, 1);
+				var shape = [ p1, p2, p3, p4 ];
+				return new Block(3, 2, shape);
+			}
+			case 7: {
+				var p1 = new Point(0, 0);
+				var p2 = new Point(1, 0);
+				var p3 = new Point(2, 0);
+				var p4 = new Point(0, 1);
+				var p5 = new Point(2, 1);
+				var shape = [ p1, p2, p3, p4, p5 ];
+				return new Block(3, 2, shape);
+			}
+			default: {
+				var p = new Point(0, 0);
+				return new Block(1, 1, [ p ]);
+			}
+			}
+		}
+	};
+
+	var ColorFactory = {
+		createColor : function() {
+			var i = parseInt(Math.random() * 12);
+			switch (i) {
+			case 0:
+				return 'cyan';
+			case 1:
+				return 'green';
+			case 2:
+				return 'red';
+			case 3:
+				return 'green';
+			case 4:
+				return 'lime';
+			case 5:
+				return 'blueviolet';
+			case 6:
+				return 'darkcyan';
+			case 7:
+				return 'chocolate';
+			case 8:
+				return 'olive';
+			case 9:
+				return 'orange';
+			case 10:
+				return 'springgreen';
+			case 11:
+				return 'skyblue';
+			default:
+				return 'cyan';
+			}
+		}
+	};
+
+	window.onload = function() {
+		var game = new Game(new GamePanel('panel'), new GamePanel('state'));
+		/*
+		 * set elements whitch display level, line count and points
+		 */
+		game.levelUIElement = document.getElementById('level');
+		game.lineCountUIElement = document.getElementById('lineCounts');
+		game.pointUIElement = document.getElementById('points');
+
+		game.start();
+	}
+
+	function debug(msg) {
+		//		var consol = $('console');
+		//		consol.innerHTML = consol.innerHTML + "<br>" + msg;
+	}
+</script>
+</head>
+<body>
+<div class='main'>
+<div class="panel" id="panel"></div>
+<div id="state" class='state'>
+<table style="width: 100%; height: 100%">
+	<tr align="left" valign="bottom">
+		<td>
+		<div><b> 
+		Level:<span id='level'></span><br>
+		Lines:<span id='lineCounts'></span><br>
+		Points:<span id='points'></span> </b></div>
+		</td>
+	</tr>
+</table>
+</div>
+</div>
+<div id='console'></div>
+</body>
+</html>

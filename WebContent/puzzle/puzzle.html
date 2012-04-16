@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Puzzle</title>
+<style type="text/css">
+div.game {
+	position: static;
+	width: 810px;
+	height: 402px;
+}
+
+div.panel {
+	position: relative;
+	border: 1px solid blue;
+	background-color: white;
+	width: 400px;
+	height: 400px;
+	float: left;
+}
+
+div.block {
+	position: absolute;
+	border: 1px solid green;
+	overflow: hidden;
+	background-color: white;
+	text-align: center;
+	background-repeat: no-repeat;
+}
+
+div.img {
+	position: realative;
+	border: 1px solid lime;
+	width: 400px;
+	height: 402px;
+	float: right;
+	text-align: left;
+}
+</style>
+<script type="text/javascript">
+	/*
+	 *class move effect
+	 */
+	var Movement = function(obj) {
+		this.interval = 20;	//one step per 20 milliseconds
+		this.obj = obj;
+	}
+	Movement.prototype = {
+		move : function(toX, toY, time, callback) {
+			var x = this.obj.offsetLeft;
+			var y = this.obj.offsetTop;
+			
+			var n = time / this.interval;
+			var offsetX = (toX - x) / n;
+			var offsetY = (toY - y) / n;
+			if (offsetX != 0 && Math.abs(offsetX) < 1) {offsetX = offsetX > 0 ? 1 : -1;}
+			if (offsetY != 0 && Math.abs(offsetY) < 1) {offsetY = offsetY > 0 ? 1 : -1;}
+	
+			this.step(toX, toY, offsetX, offsetY, callback);
+		},
+		
+		step : function(toX, toY, offsetX, offsetY, callback) {
+			var x = this.obj.offsetLeft;
+			var y = this.obj.offsetTop;
+			
+			if (x == toX && y == toY) {
+				if (callback) {
+					callback();
+				}
+				return;
+			}
+	
+			x = (x - toX) * (x + offsetX - toX) <= 0 ? toX : x + offsetX;
+			y = (y - toY) * (y + offsetY - toY) <= 0 ? toY : y + offsetY;
+	
+			this.obj.style.left = x + "px";
+			this.obj.style.top = y + "px";
+	
+			var self = this;
+			setTimeout(function() {
+				self.step(toX, toY, offsetX, offsetY, callback);
+			}, this.interval);
+		}
+	}
+</script>
+<script type="text/javascript">
+	/*blank block*/
+	var Blank = function(v) {
+		this.value = v;
+		this.x = 0;
+		this.y = 0;
+	}
+	Blank.prototype = {
+		put : function(x, y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+	/*block*/
+	var Block = function(w, h, v, container) {
+		this.value = v;
+		this.width = w;
+		this.height = h;
+		this.x = 0;
+		this.y = 0;
+		this.container = container;
+		this.ui = null;
+		this.initialize();
+	}
+
+	Block.prototype = {
+		initialize : function() {
+			this.ui = document.createElement("div");
+			this.ui.className = "block";
+			if (this.container != null) {
+				this.container.ui.appendChild(this.ui);
+				var self = this;
+				this.ui.onclick = function() {
+					self.container.onclickMove(self.x, self.y);
+				}
+			}
+			var borderWidth = this.ui.offsetWidth - this.ui.clientWidth;
+			var borderHeight = this.ui.offsetHeight - this.ui.clientHeight;
+			this.ui.style.width = (this.width - borderWidth) + "px";
+			this.ui.style.height = (this.height - borderHeight) + "px";
+		},
+		
+		put : function(x, y, effect) {
+			this.x = x;
+			this.y = y;
+			var pos = this.getPosition();
+			
+			if (effect) {
+				var me = new Movement(this.ui);
+				var self = this;
+				me.move(pos.left, pos.top, 200, function() {
+					self.container.moving = false;
+				});
+			} else {
+				this.ui.style.left = pos.left + "px";
+				this.ui.style.top = pos.top + "px";
+			}
+		},
+		
+		getPosition : function() {
+			return this.container.getBlockPosition(this.x, this.y);
+		},
+
+		fillImage : function(x, y, img) {
+			if (img == null) {
+				this.ui.innerText = this.value;
+			} else {
+				this.ui.style.backgroundImage = "url(" + img + ")";
+				this.ui.style.backgroundPositionX = x + "px";
+				this.ui.style.backgroundPositionY = y + "px";
+			}
+		}
+	}
+
+	/*
+	 * class puzzle
+	 */
+	var Puzzle = function(id, wn, hn) {
+		this.ui = document.getElementById(id);
+		this.position = absPosition(this.ui);
+		this.nrow = hn;
+		this.nline = wn;
+		this.width = 0;
+		this.height = 0;
+		this.blockWidth = 0;
+		this.blockHeight = 0;
+		this.blocks = new Array();
+		this.blankBlock = null;
+		this.image = null;
+		this.running = false;
+		this.moving = false;
+
+		/*initialize*/
+		this.initialize();
+	}
+
+	Puzzle.prototype = {
+		initialize : function() {
+			this.width = this.ui.clientWidth;
+			this.height = this.ui.clientHeight;
+			this.blockWidth = this.width / this.nline;
+			this.blockHeight = this.height / this.nrow;
+		},
+
+		setImage : function(url, id) {
+			this.image = url;
+			var imgobj = document.getElementById(id);
+			if (!imgobj) {
+				return;
+			}
+
+			imgobj.style.backgroundImage = 'url(' + url + ')';
+			
+			/**var img = new Image();
+			img.src = url;
+
+			var w = "";
+			var h = "";
+			if (img.width > imgobj.clientWidth || img.heigth > imgobj.clientHeight) {
+				if (img.width / img.height > imgobj.clientWidth / imgobj.clientHeight) {
+					w = "width='100%'";
+				} else {
+					h = "height='100%'";
+				}
+			}
+			imgobj.innerHTML = "<img " + w + " " + h + " src='" + url + "'/>";*/
+		},
+		
+		start : function() {
+			if (this.running) {
+				return;
+			}
+			this.running = true;
+			/*create blocks*/
+			for (var i = 0; i < this.nrow; i++) {
+				var row = new Array();
+				for (var j = 0; j < this.nline; j++) {
+					var value = j + i * this.nline;
+
+					/*blank block*/
+					if ((i == this.nrow - 1) && (j == this.nline - 1)) {
+						this.blankBlock = new Blank(value);
+						this.blankBlock.put(j, i);
+						row[j] = this.blankBlock;
+						continue;
+					}
+
+					var block = new Block(this.blockWidth, this.blockHeight, value, this);
+					
+					bx = 0 - this.blockWidth * j;
+					by = 0 - this.blockHeight * i;
+					block.fillImage(bx, by, this.image);
+					
+					block.put(j, i);
+					row[j] = block;
+				}
+				this.blocks[i] = row;
+			}
+			/*shuffle blocks*/
+			this.shuffle();
+		},
+
+		reset : function() {
+			this.image = null;
+			this.running = false;
+			this.moving = false;
+			
+			if (this.blocks.length == 0) {
+				return;
+			}
+			for (var i = 0; i < this.nrow; i++) {
+				for (var j = 0; j < this.nline; j++) {
+					var child = this.blocks[i][j].ui;
+					if (child) {
+						this.ui.removeChild(child);
+					}
+				}
+			}
+			this.blocks.length = 0;
+		},
+		
+		getBlockPosition : function(x, y) {
+			var left = x * this.blockWidth;
+			var top = y * this.blockHeight;
+			return {'left' : left, 'top' : top};
+		},
+
+		onclickMove : function(x, y) {
+			if (this.moving) {
+				return;
+			}
+			if ((y == this.blankBlock.y && Math.abs(x - this.blankBlock.x) == 1) || (x == this.blankBlock.x && Math.abs(y - this.blankBlock.y) == 1)) {
+				this.moving = true;
+				this.move(x, y, true);
+				if (this.checkComplete()) {
+					this.onComplete();
+				}
+			}
+		},
+
+		onComplete : function() {
+			alert('congratulation!');
+		},
+		
+		move : function(x, y, effect) {
+			var bx = this.blankBlock.x;
+			var by = this.blankBlock.y;
+			
+			var moveBlock = this.blocks[y][x];
+			this.blocks[y][x] = this.blankBlock;
+			this.blocks[by][bx] = moveBlock;
+
+			moveBlock.put(bx, by, effect);
+			this.blankBlock.put(x, y);
+		},
+
+		shuffle : function() {
+			var level = 30;
+			var prev = -1;
+			for (var i = 0; i < level; i++) {
+				var movPos = this.getRandomBlock(prev);
+				prev = movPos.random;
+				this.move(movPos.x, movPos.y);
+			}
+		},
+
+		getRandomBlock : function(prev) {
+			var blankX = this.blankBlock.x;
+			var blankY = this.blankBlock.y;
+			while(true) {
+				var random = parseInt(Math.random() * 4);	//0-up,1-right,2-down,3-left
+				if (prev != -1 && Math.abs(prev - random) == 2) {			//back to previous position
+					continue;
+				}
+				var bx = blankX;
+				var by = blankY;
+				switch(random) {
+				case 0 :
+					by = blankY - 1;
+					break;
+				case 1 :
+					bx = blankX + 1;
+					break;
+				case 2 :
+					by = blankY + 1;
+					break;
+				case 3 :
+					bx = blankX - 1;
+					break;
+				default :
+					continue;
+				}
+				if (bx < 0 || by < 0 || bx > this.nline - 1 || by > this.nrow - 1) {
+					continue;
+				}
+				return {'x' : bx, 'y' : by, 'random' : random};
+			}
+		},
+
+		checkComplete : function() {
+			var n = -1;
+			for (var i = 0; i < this.nrow; i++) {
+				for (var j = 0; j < this.nline; j++) {
+					n += 1;
+					if (n != this.blocks[i][j].value) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+	}
+
+	/*
+	 *get absolute position in document of object
+	 */
+	function absPosition(obj) {
+		var left = obj.offsetLeft;
+		var top = obj.offsetTop;
+		var parent = obj.offsetParent;
+		while (parent) {
+			left += parent.offsetLeft;
+			top += parent.offsetTop;
+			parent = parent.offsetParent;
+		}
+		return {
+			'left' : left,
+			'top' : top
+		};
+	}
+
+	var IMAGE_FILES = ['img/01.jpg', 'img/02.jpg', 'img/03.jpg', 'img/04.jpg'];
+	var imageIndex = 0;
+	var puzzle;
+	window.onload = function() {
+		puzzle = new Puzzle('panel', 4, 4);
+		puzzle.setImage(IMAGE_FILES[0], 'imgdiv');
+		imageIndex = 0;
+		puzzle.start();
+	}
+
+	function newgame() {
+		imageIndex++;
+		if (imageIndex > IMAGE_FILES.length - 1) {
+			imageIndex = 0;
+		}
+		puzzle.reset();
+		puzzle.setImage(IMAGE_FILES[imageIndex], 'imgdiv');
+		puzzle.start();
+	}
+	
+	function debug(msg) {
+		var consol = document.getElementById('console');
+		if (!consol) {
+			return;
+		}
+		var html = consol.innerText;
+		if (html == null || html.length == 0) {
+			consol.innerText = msg;
+		} else {
+			consol.innerText = html + "\n" + msg;
+		}
+	}
+	
+</script>
+</head>
+<body>
+<div align="center">
+ <div class="game">
+  <div id='panel' class='panel'></div>
+  <div id="imgdiv" class='img'></div>
+ </div>
+ <br>
+ <input type='button' value='next' onclick='newgame()'> <!-- <div style="width: 810;height: 200"><textarea id='console' style="width: 100%;height: 200; overflow: scroll"></textarea></div> -->
+</div>
+</body>
+</html>
