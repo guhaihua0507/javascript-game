@@ -207,13 +207,13 @@
 	window.onload=function(){
 		set();
 		var panel=$('panel');
-		panel.style.left=(window.screen.width-parseInt(panel.offsetWidth))/2
 
 		snake=new Snake(10,10,3,panel);
 		addFood();
 		
 		mID=setInterval('play()',100);
 	}
+	
 </script>
 </head>
 <body>
