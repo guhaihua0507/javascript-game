@@ -2,4 +2,5 @@ syntax: glob
 */classes
 .settings
 .classpath
+.hgignore
 .project
