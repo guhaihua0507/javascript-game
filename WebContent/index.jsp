@@ -33,11 +33,11 @@
 <table align="center">
  <tr>
  	<td align="right">id:</td>
- 	<td><input type='text' name='userId'></td>
+ 	<td><input type='text' name='userId' id="userId"></td>
  </tr>
  <tr>
  	<td align="right">name:</td>
- 	<td><input type='text' name='name'></td>
+ 	<td><input type='text' name='name' id="name"></td>
  </tr>
  <tr>
  	<td colspan='2' align="center"><input type='button' value='submit' onclick='login()'></td>
