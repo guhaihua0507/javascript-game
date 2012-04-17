@@ -7,7 +7,6 @@
 <link href="css/keyboard.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="js/prototype.js"></script>
 <script type="text/javascript">
-	
 	var SIZE;
 	var PANEL_WIDTH;
 	var PANEL_HEIGHT;
@@ -160,33 +159,15 @@
 		if(snake.moving==false) {
 			return;
 		}
-		if(event.keyCode==37)
-		{
-			if(snake.movX==1)
-				return;
-			snake.movX=-1;
-			snake.movY=0;
+		var val = '';
+		switch(event.keyCode) {
+			case 73: val = 'left'; break;
+			case 38: val = 'up'; break;
+			case 39: val = 'right'; break;
+			case 40: val = 'down'; break;
 		}
-		else if(event.keyCode==38)
-		{
-			if(snake.movY==1)
-				return;
-			snake.movX=0;
-			snake.movY=-1;
-		}
-		else if(event.keyCode==39)
-		{
-			if(snake.movX==-1)
-				return;
-			snake.movX=1;
-			snake.movY=0;
-		}
-		else if(event.keyCode==40)
-		{
-			if(snake.movY==-1)
-				return;
-			snake.movX=0;
-			snake.movY=1;
+		if (val != '') {
+			control(val);
 		}
 	}
 	function gameOver()
@@ -201,7 +182,7 @@
 		$('panel').appendChild(message.modalLayer);
 	}
 	
-	function move(val) {
+	function control(val) {
 		if(snake.moving==false) {
 			return;
 		}
@@ -254,6 +235,43 @@
 		}
 	}
 	
+	var bindDrag = function(id) {
+		var obj = document.getElementById(id);
+		obj.readytomove = false;
+		obj.onmousedown = function(event) {
+			if (this.setCapture) {
+				this.setCapture();
+			} else if (window.captureEvents) {
+				window.captureEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
+			}
+			this.readytomove = true;
+			var offsetPos = {left: obj.offsetLeft, right: obj.offsetTop};
+			this.mouseX = event.clientX;
+			this.mouseY = event.clientY;
+		};
+
+		obj.onmousemove = function(event) {
+			if (this.readytomove == false) {
+				return;
+			}
+			this.style.left = (event.clientX - this.mouseX + this.offsetLeft) + "px";
+			this.style.top = (event.clientY - this.mouseY + this.offsetTop) + "px";
+			this.mouseX = event.clientX;
+			this.mouseY = event.clientY;
+		};
+
+		obj.onmouseup = function(event) {
+			if (this.readytomove == true) {
+				if (this.releaseCapture) {
+					this.releaseCapture()
+				} else if (window.releaseEvents) {
+					window.releaseEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
+				}
+				this.readytomove = false;
+			}
+		}
+	}
+	
 	function loadVirtualKeyboard() {
 		var keyboard = document.getElementById('vKeyboard');
 		keyboard.style.display = '';
@@ -262,21 +280,23 @@
 		var panel = $('panel');
 		keyboard.style.left = (panel.offsetLeft + panel.offsetWidth) + "px";
 		keyboard.style.top = (panel.offsetTop + panel.offsetHeight - height) / 2 + "px";
+		
+		bindDrag('vKeyboard');
 	}
 </script>
 </head>
 <body>
 	<div class='panel' id='panel'></div>
 	<div id='vKeyboard' class="keyboard" style="display: none;">
-		<div class="keyline" onclick="move('up')">
+		<div class="keyline" onclick="control('up')">
 			<div class="key up"></div>
 		</div>
 		<div class="keyline">
-			<div class="key left" onclick="move('left')"></div>
-			<div class="key right" onclick="move('right')"></div>
+			<div class="key left" onclick="control('left')"></div>
+			<div class="key right" onclick="control('right')"></div>
 		</div>
 		<div class="keyline">
-			<div class="key down" onclick="move('down')"></div>
+			<div class="key down" onclick="control('down')"></div>
 		</div>
 	</div>
 </body>
