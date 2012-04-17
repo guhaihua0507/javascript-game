@@ -4,8 +4,9 @@
 <title>Snake</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link href="css/snake.css" rel="stylesheet" type="text/css">
+<link href="css/keyboard.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="js/prototype.js"></script>
-<script type="text/javascript" >
+<script type="text/javascript">
 	
 	var SIZE;
 	var PANEL_WIDTH;
@@ -156,8 +157,9 @@
 	}
 	document.onkeyup=function(event)
 	{
-		if(snake.moving==false)
+		if(snake.moving==false) {
 			return;
+		}
 		if(event.keyCode==37)
 		{
 			if(snake.movX==1)
@@ -198,6 +200,40 @@
 		message.modalLayer.className="modal";
 		$('panel').appendChild(message.modalLayer);
 	}
+	
+	function move(val) {
+		if(snake.moving==false) {
+			return;
+		}
+		if(val == 'left')
+		{
+			if(snake.movX==1)
+				return;
+			snake.movX=-1;
+			snake.movY=0;
+		}
+		else if(val == 'up')
+		{
+			if(snake.movY==1)
+				return;
+			snake.movX=0;
+			snake.movY=-1;
+		}
+		else if(val == 'right')
+		{
+			if(snake.movX==-1)
+				return;
+			snake.movX=1;
+			snake.movY=0;
+		}
+		else if(val == 'down')
+		{
+			if(snake.movY==-1)
+				return;
+			snake.movX=0;
+			snake.movY=1;
+		}
+	}
 //--------------------------------------------	
 	var snake=null;
 	var food=null;
@@ -212,11 +248,36 @@
 		addFood();
 		
 		mID=setInterval('play()',100);
+		
+		if (navigator.userAgent.indexOf('Mobile') > -1) {
+			loadVirtualKeyboard();
+		}
 	}
 	
+	function loadVirtualKeyboard() {
+		var keyboard = document.getElementById('vKeyboard');
+		keyboard.style.display = '';
+		var width = keyboard.offsetWidth;
+		var height = keyboard.offsetHeight;
+		var panel = $('panel');
+		keyboard.style.left = (panel.offsetLeft + panel.offsetWidth) + "px";
+		keyboard.style.top = (panel.offsetTop + panel.offsetHeight - height) / 2 + "px";
+	}
 </script>
 </head>
 <body>
 	<div class='panel' id='panel'></div>
+	<div id='vKeyboard' class="keyboard" style="display: none;">
+		<div class="keyline" onclick="move('up')">
+			<div class="key up"></div>
+		</div>
+		<div class="keyline">
+			<div class="key left" onclick="move('left')"></div>
+			<div class="key right" onclick="move('right')"></div>
+		</div>
+		<div class="keyline">
+			<div class="key down" onclick="move('down')"></div>
+		</div>
+	</div>
 </body>
 </html>
