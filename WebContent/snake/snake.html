@@ -5,7 +5,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link href="css/snake.css" rel="stylesheet" type="text/css">
 <link href="css/keyboard.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="js/prototype.js"></script>
+<script type="text/javascript">
+	var $ = function(id) {
+		return document.getElementById(id);
+	}
+	
+	Array.prototype.forEach = function(iterator) {
+		for (var i = 0; i < this.length; i++) {
+			iterator(this[i]);
+		}
+	}
+</script>
 <script type="text/javascript">
 	var SIZE;
 	var PANEL_WIDTH;
@@ -105,7 +115,7 @@
 			}
 		},
 		updateView: function(){
-			this.bodys.each(function(b){
+			this.bodys.forEach(function(b){
 				b.updateView();
 			})
 		},
@@ -237,8 +247,10 @@
 	
 	var bindDrag = function(id) {
 		var obj = document.getElementById(id);
+		
 		obj.readytomove = false;
-		obj.onmousedown = function(event) {
+		obj.ontouchstart = function(event) {
+			var touchEvent = event.targetTouches[0];
 			if (this.setCapture) {
 				this.setCapture();
 			} else if (window.captureEvents) {
@@ -246,21 +258,22 @@
 			}
 			this.readytomove = true;
 			var offsetPos = {left: obj.offsetLeft, right: obj.offsetTop};
-			this.mouseX = event.clientX;
-			this.mouseY = event.clientY;
+			this.mouseX = touchEvent.pageX;
+			this.mouseY = touchEvent.pageY;
 		};
 
-		obj.onmousemove = function(event) {
+		obj.ontouchmove = function(event) {
 			if (this.readytomove == false) {
 				return;
 			}
-			this.style.left = (event.clientX - this.mouseX + this.offsetLeft) + "px";
-			this.style.top = (event.clientY - this.mouseY + this.offsetTop) + "px";
-			this.mouseX = event.clientX;
-			this.mouseY = event.clientY;
+			var touchEvent = event.targetTouches[0];
+			this.style.left = (touchEvent.pageX - this.mouseX + this.offsetLeft) + "px";
+			this.style.top = (touchEvent.pageY - this.mouseY + this.offsetTop) + "px";
+			this.mouseX = touchEvent.pageX;
+			this.mouseY = touchEvent.pageY;
 		};
 
-		obj.onmouseup = function(event) {
+		obj.ontouchend = function(event) {
 			if (this.readytomove == true) {
 				if (this.releaseCapture) {
 					this.releaseCapture()
