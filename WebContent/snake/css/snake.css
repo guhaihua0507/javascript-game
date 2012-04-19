@@ -23,16 +23,6 @@ div.snake {
 	background-color: green;
 }
 
-.modal {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background-image: url(modal2_.jpg);
-	background-repeat: repeat;
-}
-
 div.dialog {
 	position: relative;
 	border: medium solid gray;
