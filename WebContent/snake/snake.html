@@ -241,76 +241,45 @@
 		mID=setInterval('play()',100);
 		
 		if (navigator.userAgent.indexOf('Mobile') > -1) {
-			loadVirtualKeyboard();
+			loadTouchMotion(document);
 		}
 	}
 	
-	var bindDrag = function(id) {
-		var obj = document.getElementById(id);
-		
-		obj.readytomove = false;
+	function loadTouchMotion(obj) {
 		obj.ontouchstart = function(event) {
 			var touchEvent = event.targetTouches[0];
-			if (this.setCapture) {
-				this.setCapture();
-			} else if (window.captureEvents) {
-				window.captureEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
-			}
-			this.readytomove = true;
-			var offsetPos = {left: obj.offsetLeft, right: obj.offsetTop};
-			this.mouseX = touchEvent.pageX;
-			this.mouseY = touchEvent.pageY;
-		};
-
+			this.startX = touchEvent.pageX;
+			this.startY = touchEvent.pageY;
+		}
+		
 		obj.ontouchmove = function(event) {
-			if (this.readytomove == false) {
-				return;
-			}
 			var touchEvent = event.targetTouches[0];
-			this.style.left = (touchEvent.pageX - this.mouseX + this.offsetLeft) + "px";
-			this.style.top = (touchEvent.pageY - this.mouseY + this.offsetTop) + "px";
-			this.mouseX = touchEvent.pageX;
-			this.mouseY = touchEvent.pageY;
-		};
-
-		obj.ontouchend = function(event) {
-			if (this.readytomove == true) {
-				if (this.releaseCapture) {
-					this.releaseCapture()
-				} else if (window.releaseEvents) {
-					window.releaseEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
+			var posX = touchEvent.pageX;
+			var posY = touchEvent.pageY;
+			var _x = posX - this.startX;
+			var _y = posY - this.startY;
+			
+			var direct = '';
+			if (Math.abs(_x) >= Math.abs(_y)) {
+				if (_x > 0) {
+					direct = 'right';
+				} else if (_x < 0) {
+					direct = 'left';
 				}
-				this.readytomove = false;
+			} else {
+				if (_y > 0) {
+					direct = 'down';
+				} else if (_y < 0) {
+					direct = 'up';
+				}
 			}
+			control(direct);
 		}
 	}
 	
-	function loadVirtualKeyboard() {
-		var keyboard = document.getElementById('vKeyboard');
-		keyboard.style.display = '';
-		var width = keyboard.offsetWidth;
-		var height = keyboard.offsetHeight;
-		var panel = $('panel');
-		keyboard.style.left = (panel.offsetLeft + panel.offsetWidth) + "px";
-		keyboard.style.top = (panel.offsetTop + panel.offsetHeight - height) / 2 + "px";
-		
-		bindDrag('vKeyboard');
-	}
 </script>
 </head>
 <body>
 	<div class='panel' id='panel'></div>
-	<div id='vKeyboard' class="keyboard" style="display: none;">
-		<div class="keyline" onclick="control('up')">
-			<div class="key up"></div>
-		</div>
-		<div class="keyline">
-			<div class="key left" onclick="control('left')"></div>
-			<div class="key right" onclick="control('right')"></div>
-		</div>
-		<div class="keyline">
-			<div class="key down" onclick="control('down')"></div>
-		</div>
-	</div>
 </body>
 </html>
