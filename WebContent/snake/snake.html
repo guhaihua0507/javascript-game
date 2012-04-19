@@ -22,13 +22,13 @@
 	var PANEL_HEIGHT;
 	function set()
 	{
-		SIZE=20;
-		var panel=$('panel');
-		PANEL_WIDTH=panel.clientWidth/SIZE;
-		PANEL_HEIGHT=panel.clientHeight/SIZE;
+		SIZE = 20;
+		var panel = $('panel');
+		PANEL_WIDTH = panel.clientWidth/SIZE;
+		PANEL_HEIGHT = panel.clientHeight/SIZE;
 	}
 //-----------Food--------------------------------------------------
-	var Food=function(x,y,panel){
+	var Food=function(x,y,panel) {
 		var body=document.createElement("div");
 		body.className="food";
 		this.div=body;
@@ -37,43 +37,40 @@
 		panel.appendChild(body);
 	}
 	
-	Food.prototype.setPosition=function(x,y)
-	{
+	Food.prototype.setPosition=function(x,y) {
 		this.xPos=x;
 		this.yPos=y;
 	}
-	Food.prototype.draw=function()	
-	{
+	
+	Food.prototype.draw=function() {
 		this.div.style.left=this.xPos*SIZE + "px";
 		this.div.style.top=this.yPos*SIZE + "px";
 	}
-	Food.prototype.remove=function()
-	{
+	
+	Food.prototype.remove=function() {
 		document.all.panel.removeChild(this.div);
 	}
 //------------Body-----------------------------------------------------
-	var Body=function(x,y){
+	var Body=function(x,y) {
 		var div=document.createElement("div");
 		div.className="snake";
 		this.view=div;
 		this.xPos=x;
 		this.yPos=y;
 	}
-	Body.prototype.move=function(x,y){
+	Body.prototype.move = function(x,y) {
 		this.xPos=x;
 		this.yPos=y;
 	}
-	Body.prototype.getPosition=function()
-	{
+	Body.prototype.getPosition = function() {
 		return {x:this.xPos, y:this.yPos};
 	}
-	Body.prototype.updateView=function()
-	{
-		this.view.style.left=this.xPos*SIZE + "px";
-		this.view.style.top=this.yPos*SIZE + "px";
+	Body.prototype.updateView = function() {
+		this.view.style.left = this.xPos*SIZE + "px";
+		this.view.style.top = this.yPos*SIZE + "px";
 	}
 //-------------Snake----------------------------------------------------	
-	var Snake=function(x,y,length,panel){
+	var Snake=function(x,y,length,panel) {
 		this.bodys=new Array();
 		this.movX=0;
 		this.movY=0;
@@ -83,16 +80,16 @@
 	}
 	Snake.prototype={			
 		initialize: function(x,y,length){
-			for(var i=0;i<length;i++)
-			{
+			for(var i=0;i<length;i++) {
 				this.addBody(new Body(x,y));
 			}
-			this.moving=true;
+			this.moving = true;
 		},
+		
 		move: function(food){
-			
-			if(this.moving==false)
+			if(this.moving == false) {
 				return;
+			}
 			var arr=this.bodys;
 			
 			var head=arr[0];
@@ -100,19 +97,23 @@
 			
 			var toX=hpos.x+this.movX;
 			var toY=hpos.y+this.movY;
-			if(this.die(toX,toY))
+			if(this.die(toX,toY)) {
 				return;
+			}
 
 			head.move(toX,toY);
-			if(head.xPos==food.xPos&&head.yPos==food.yPos)
+			var returnValue = false;
+			if(head.xPos==food.xPos&&head.yPos==food.yPos) {
 				this.eat(food);
+				returnValue = true;
+			}
 			var toPos=hpos;
-			for(var i=1;i<arr.length;i++)
-			{
+			for(var i=1;i<arr.length;i++) {
 				var pos=arr[i].getPosition();
 				arr[i].move(toPos.x,toPos.y);
 				toPos=pos;
 			}
+			return returnValue;
 		},
 		updateView: function(){
 			this.bodys.forEach(function(b){
@@ -123,7 +124,6 @@
 			var x=food.xPos;
 			var y=food.yPos;
 			this.addBody(new Body(x,y));
-			addFood();
 		},
 		addBody: function(body){
 			this.panel.appendChild(body.view);
@@ -141,140 +141,170 @@
 		}
 	}
 //-----------------------------------------------------------------
-	function play()
-	{
-		if(snake.moving==false)
-		{
-			clearTimeout(mID);
-			gameOver();
-		}
-		snake.move(food);
-		snake.updateView();
+	var Game = function(panel) {
+		this.panel = panel;
+		this.snake = null;
+		this.food = null;
+		this.isStarted = false;
+		this.warnUI = null;
+		this.initialize();
 	}
-	function addFood()
-	{
-		var x=parseInt(Math.random()*PANEL_WIDTH);
-		var y=parseInt(Math.random()*PANEL_HEIGHT);
-		if(food==null)
-		{
-			var panel=$('panel');
-			food=new Food(x,y,panel);
-		}
-		else
-			food.setPosition(x,y);
-		food.draw();
-	}
-	document.onkeyup=function(event)
-	{
-		if(snake.moving==false) {
-			return;
-		}
-		var val = '';
-		switch(event.keyCode) {
-			case 37: val = 'left'; break;
-			case 38: val = 'up'; break;
-			case 39: val = 'right'; break;
-			case 40: val = 'down'; break;
-		}
-		if (val != '') {
-			control(val);
-		}
-	}
-	function gameOver()
-	{
-		var message=document.createElement('div');
-		message.className="dialog";
-		message.innerHTML="GAME OVER";
+
+	Game.prototype = {
+		initialize: function() {
+			this.snake = new Snake(10, 10, 3, this.panel);
+			this.initKeyboard();
+			if (navigator.userAgent.indexOf('Mobile') > -1) {
+				this.initTouchMotion();
+			}
+		},
 		
-		message.modalLayer=document.createElement('div');
-		message.modalLayer.appendChild(message);
-		message.modalLayer.className="modal";
-		$('panel').appendChild(message.modalLayer);
+		start: function() {
+			this.isStarted = true;
+			this.addFood();
+			this.run();
+		},
+		
+		run: function() {
+			if (this.snake.move(this.food)) {
+				this.addFood();
+			}
+			this.snake.updateView();
+			
+			if (this.snake.moving == false) {
+				this.gameOver();
+				return;
+			} else {
+				var _game = this;
+				setTimeout(function() {
+					_game.run();
+				}, 100);
+			}
+		},
+		
+		restart: function() {
+			var childNodes = this.panel.childNodes;
+			for (var i = childNodes.length - 1; i >= 0; i--) {
+				this.panel.removeChild(childNodes[i]);
+			}
+			this.snake = new Snake(10, 10, 3, this.panel);
+			this.food = null;
+			this.start();
+		},
+		
+		initKeyboard: function() {
+			var _game = this;
+			document.onkeyup = function(event) {
+				if(_game.snake.moving == false) {
+					return;
+				}
+				var val = '';
+				switch(event.keyCode) {
+					case 37: val = 'left'; break;
+					case 38: val = 'up'; break;
+					case 39: val = 'right'; break;
+					case 40: val = 'down'; break;
+				}
+				if (val != '') {
+					_game.control(val);
+				}
+			}
+		},
+		
+		initTouchMotion: function() {
+			var _game = this;
+			document.ontouchstart = function(event) {
+				var touchEvent = event.targetTouches[0];
+				this.startX = touchEvent.pageX;
+				this.startY = touchEvent.pageY;
+			}
+			
+			document.ontouchmove = function(event) {
+				var touchEvent = event.targetTouches[0];
+				var posX = touchEvent.pageX;
+				var posY = touchEvent.pageY;
+				var _x = posX - this.startX;
+				var _y = posY - this.startY;
+				
+				var direct = '';
+				if (Math.abs(_x) >= Math.abs(_y)) {
+					if (_x > 0) {
+						direct = 'right';
+					} else if (_x < 0) {
+						direct = 'left';
+					}
+				} else {
+					if (_y > 0) {
+						direct = 'down';
+					} else if (_y < 0) {
+						direct = 'up';
+					}
+				}
+				_game.control(direct);
+			}
+		},
+		
+		control: function(val) {
+			if(this.snake.moving == false) {
+				return;
+			}
+			if(val == 'left') {
+				if(this.snake.movX == 1) {
+					return;
+				}
+				this.snake.movX = -1;
+				this.snake.movY = 0;
+			} else if(val == 'up') {
+				if(this.snake.movY == 1) {
+					return;
+				}
+				this.snake.movX = 0;
+				this.snake.movY = -1;
+			} else if(val == 'right') {
+				if(this.snake.movX == -1) {
+					return;
+				}
+				this.snake.movX = 1;
+				this.snake.movY = 0;
+			} else if(val == 'down') {
+				if(this.snake.movY == -1) {
+					return;
+				}
+				this.snake.movX = 0;
+				this.snake.movY = 1;
+			}
+		},
+		
+		gameOver: function() {
+			this.isStarted = false;
+			if (this.warnUI == null) {
+				this.warnUI = document.createElement('div');
+				this.warnUI.className = "dialog";
+				this.warnUI.innerHTML = "GAME OVER";
+				var _game = this;
+				this.warnUI.onclick = function() {
+					_game.restart();
+				}
+			}
+			this.panel.appendChild(this.warnUI);
+		},
+		
+		addFood: function() {
+			var x = parseInt(Math.random() * PANEL_WIDTH);
+			var y = parseInt(Math.random() * PANEL_HEIGHT);
+			if(this.food == null) {
+				this.food = new Food(x, y, this.panel);
+			} else {
+				this.food.setPosition(x, y);
+			}
+			this.food.draw();
+		}
 	}
-	
-	function control(val) {
-		if(snake.moving==false) {
-			return;
-		}
-		if(val == 'left')
-		{
-			if(snake.movX==1)
-				return;
-			snake.movX=-1;
-			snake.movY=0;
-		}
-		else if(val == 'up')
-		{
-			if(snake.movY==1)
-				return;
-			snake.movX=0;
-			snake.movY=-1;
-		}
-		else if(val == 'right')
-		{
-			if(snake.movX==-1)
-				return;
-			snake.movX=1;
-			snake.movY=0;
-		}
-		else if(val == 'down')
-		{
-			if(snake.movY==-1)
-				return;
-			snake.movX=0;
-			snake.movY=1;
-		}
-	}
-//--------------------------------------------	
-	var snake=null;
-	var food=null;
-	var bstart=false;
-	var mID;
 
 	window.onload=function(){
 		set();
-		var panel=$('panel');
-
-		snake=new Snake(10,10,3,panel);
-		addFood();
-		
-		mID=setInterval('play()',100);
-		
-		if (navigator.userAgent.indexOf('Mobile') > -1) {
-			loadTouchMotion(document);
-		}
-	}
-	
-	function loadTouchMotion(obj) {
-		obj.ontouchstart = function(event) {
-			var touchEvent = event.targetTouches[0];
-			this.startX = touchEvent.pageX;
-			this.startY = touchEvent.pageY;
-		}
-		
-		obj.ontouchmove = function(event) {
-			var touchEvent = event.targetTouches[0];
-			var posX = touchEvent.pageX;
-			var posY = touchEvent.pageY;
-			var _x = posX - this.startX;
-			var _y = posY - this.startY;
-			
-			var direct = '';
-			if (Math.abs(_x) >= Math.abs(_y)) {
-				if (_x > 0) {
-					direct = 'right';
-				} else if (_x < 0) {
-					direct = 'left';
-				}
-			} else {
-				if (_y > 0) {
-					direct = 'down';
-				} else if (_y < 0) {
-					direct = 'up';
-				}
-			}
-			control(direct);
-		}
+		var game = new Game($('panel'));
+		game.start();
 	}
 	
 </script>
