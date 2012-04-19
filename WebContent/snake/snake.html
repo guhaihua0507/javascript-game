@@ -88,7 +88,7 @@
 		
 		move: function(food){
 			if(this.moving == false) {
-				return;
+				return false;
 			}
 			var arr=this.bodys;
 			
@@ -98,7 +98,7 @@
 			var toX=hpos.x+this.movX;
 			var toY=hpos.y+this.movY;
 			if(this.die(toX,toY)) {
-				return;
+				return false;
 			}
 
 			head.move(toX,toY);
