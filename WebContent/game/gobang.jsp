@@ -29,7 +29,7 @@ div.grid {
 	position: relative;
 	float: left;
 	height: 402px;
-}
+} 
 </style>
 <script type="text/javascript">
 	var Ajax = function(param) {
