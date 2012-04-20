@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.ghh.common.game.Player"%>
 <html>
@@ -11,17 +12,23 @@
 <style type="text/css">
 div.chessboard {
 	position: relative;
-	width: 402;
-	height: 402;
-	border: 1 solid;
+	width: 400px;
+	height: 400px;
+	border: 1px solid;
 	float: left;
 }
 
 div.grid {
 	position: absolute;
-	width: 40;
-	height: 40;
-	border: 1 solid blue;
+	width: 38px;
+	height: 38px;
+	border: 1px solid blue;
+}
+
+.stateboard {
+	position: relative;
+	float: left;
+	height: 402px;
 }
 </style>
 <script type="text/javascript">
@@ -95,8 +102,8 @@ div.grid {
 			this.ui = document.createElement('div');
 			this.ui.className = 'grid';
 			this.ui.style.backgroundColor = 'white';
-			this.ui.style.left = pos.left;
-			this.ui.style.top = pos.top;
+			this.ui.style.left = pos.left + "px";
+			this.ui.style.top = pos.top + "px";
 			this.board.ui.appendChild(this.ui);
 		},
 		
@@ -360,16 +367,16 @@ div.grid {
 </script>
 </head>
 <body>
-<span>game #<%= gameId%></span>
+<div>game #<%= gameId%></div>
 <div id='chessboard' class='chessboard'></div>
-<div style="float:left; height: 402;">
- <table height="100%" width="100%">
+<div class="stateboard">
+ <table style="width: 100%; height: 100%;">
   <tr><td valign="bottom">
     Player:&nbsp;<%= player.getName() %><br>
   	Status:&nbsp;<span id='myStatus'>N/A</span><br><br>
   	Rival:&nbsp;<span id='rivalName'>N/A</span><br>
   	Status:&nbsp;<span id='rivalStatus'>N/A</span>
-  </td></tr>	
+  </td></tr>
  </table>
 </div>
 <div style="clear: both">

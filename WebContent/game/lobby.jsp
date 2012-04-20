@@ -8,13 +8,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Game Lobby</title>
 <%
-	List<Game> games = (List<Game>)request.getAttribute("gamelist");
+	List<?> games = (List<?>)request.getAttribute("gamelist");
 %>
 </head>
 <body>
 <table>
 	<% 
-		for(Game game : games) {
+		for(Object o : games) {
+			Game game = (Game)o;
 	%>
 	<tr>
 		<td><a href="gobang?p=03&gameId=<%= game.getId()%>">Game #<%= game.getId()%></a></td>
