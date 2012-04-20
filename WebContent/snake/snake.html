@@ -4,7 +4,6 @@
 <title>Snake</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link href="css/snake.css" rel="stylesheet" type="text/css">
-<link href="css/keyboard.css" rel="stylesheet" type="text/css">
 <script type="text/javascript">
 	var $ = function(id) {
 		return document.getElementById(id);
@@ -213,13 +212,22 @@
 		
 		initTouchMotion: function() {
 			var _game = this;
-			document.ontouchstart = function(event) {
+			var addListener = document.addEventListener || document.attachEvent;
+			addListener.call(document, "touchstart", function(event) {
+				if (!_game.isStarted) {
+					return;
+				}
+				event.preventDefault();
 				var touchEvent = event.targetTouches[0];
 				this.startX = touchEvent.pageX;
 				this.startY = touchEvent.pageY;
-			}
+			}, false);
 			
-			document.ontouchmove = function(event) {
+			addListener.call(document, "touchmove", function(event) {
+				if (!_game.isStarted) {
+					return;
+				}
+				event.preventDefault();
 				var touchEvent = event.targetTouches[0];
 				var posX = touchEvent.pageX;
 				var posY = touchEvent.pageY;
@@ -241,7 +249,8 @@
 					}
 				}
 				_game.control(direct);
-			}
+				
+			}, false);
 		},
 		
 		control: function(val) {
@@ -309,7 +318,7 @@
 	
 </script>
 </head>
-<body>
+<body style="overflow: hidden;">
 	<div class='panel' id='panel'></div>
 </body>
 </html>
