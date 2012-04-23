@@ -278,8 +278,20 @@ div.cube {
 				}
 				this.cubes[i] = line;
 			}
+			this.loadControlPanel();
+		},
+		
+		loadControlPanel : function() {
+			this.loadKeyboardControl();
+			/*load touch pad*/
+			if (navigator.userAgent.indexOf('Mobile') > -1) {
+				this.loadTouchboardControl();
+			}
+		},
 
+		loadKeyboardControl : function() {
 			var self = this;
+			/*load keyboard*/
 			document.onkeydown = function(event) {
 				if (self.running == true && event.keyCode == 37) {
 					if (self.reachLeft() == false) {
@@ -301,7 +313,57 @@ div.cube {
 				}
 			}
 		},
-
+		
+		loadTouchboardControl : function() {
+			var self = this;
+			var addListener = document.addEventListener || document.attachEvent;
+			addListener.call(document, "touchstart", function(event) {
+				if (!self.running) {
+					return;
+				}
+				event.preventDefault();
+				var touchEvent = event.targetTouches[0];
+				this.startX = touchEvent.pageX;
+				this.startY = touchEvent.pageY;
+			}, false);
+			
+			addListener.call(document, "touchmove", function(event) {
+				if (!self.running) {
+					return;
+				}
+				event.preventDefault();
+				var touchEvent = event.targetTouches[0];
+				var posX = touchEvent.pageX;
+				var posY = touchEvent.pageY;
+				var _x = posX - this.startX;
+				var _y = posY - this.startY;
+				
+				var direct = '';
+				if (Math.abs(_x) >= Math.abs(_y)) {
+					if (_x > 0) {
+						if (self.reachRight() == false) {
+							self.move(1, 0);
+						}
+					} else if (_x < 0) {
+						if (self.reachLeft() == false) {
+							self.move(-1, 0);
+						}
+					}
+				} else {
+					if (_y > 0) {
+						if (self.reachBottom() == false) {
+							self.move(0, 1);
+						}
+					} else if (_y < 0) {
+						if (self.canTransform() == true) {
+							self.currentBlock.transform();
+							self.currentBlock.updateUI();
+						}
+					}
+				}
+			}, false);
+		},
+		
 		start : function() {
 			this.running = true;
 			this.run();
