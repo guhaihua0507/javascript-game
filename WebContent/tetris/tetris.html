@@ -3,7 +3,6 @@
 <head>
 <title>Tetris</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script type="text/javascript" src="js/prototype.js"></script>
 <style type="text/css">
 div.main {
 	position: relative;
@@ -40,6 +39,11 @@ div.cube {
 	background-color: lime;
 }
 </style>
+<script type="text/javascript">
+	var $ = function(id) {
+		return document.getElementById(id);
+	}
+</script>
 <script type="text/javascript">
 	var CUBE_SIZE = 20;
 
