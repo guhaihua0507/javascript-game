@@ -285,7 +285,7 @@ div.cube {
 			this.loadKeyboardControl();
 			/*load touch pad*/
 			if (navigator.userAgent.indexOf('Mobile') > -1) {
-				this.loadTouchboardControl();
+				this.loadTouchPanelControl();
 			}
 		},
 
@@ -314,7 +314,7 @@ div.cube {
 			}
 		},
 		
-		loadTouchboardControl : function() {
+		loadTouchPanelControl : function() {
 			var self = this;
 			var addListener = document.addEventListener || document.attachEvent;
 			addListener.call(document, "touchstart", function(event) {
