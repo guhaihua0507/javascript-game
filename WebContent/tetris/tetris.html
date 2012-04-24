@@ -52,7 +52,10 @@ div.cube {
 		
 		this.disabled = true;
 		this.keyActived = false;
-		
+		/*
+		 * customer action, 
+		 * param: 0-up, 1-right, 2-down, 3-left
+		 */
 		this.onKeydown = null;
 		this.initialize();
 	}
@@ -438,23 +441,23 @@ div.cube {
 			var _self = this;
 			this.joyStick.onkeydown = function(v) {
 				switch(v) {
-				case 0:
+				case 0:										//up
 					if (_self.canTransform() == true) {
 						_self.currentBlock.transform();
 						_self.currentBlock.updateUI();
 					}
 					break;
-				case 1:
+				case 1:										//right
 					if (_self.reachRight() == false) {
 						_self.move(1, 0);
 					}
 					break;
-				case 2:
+				case 2:										//down
 					if (_self.reachBottom() == false) {
 						_self.move(0, 1);
 					}
 					break;
-				case 3:
+				case 3:										//left
 					if (_self.reachLeft() == false) {
 						_self.move(-1, 0);
 					}
