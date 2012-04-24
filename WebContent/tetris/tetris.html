@@ -43,6 +43,121 @@ div.cube {
 	function $(id) {
 		return document.getElementById(id);
 	}
+	
+	var JoyStick = function() {
+		/*private*/
+		this.touchstart = null;
+		this.touchmove = null;
+		this.touchend = null;
+		
+		this.disabled = true;
+		this.keyActived = false;
+		
+		this.onKeydown = null;
+		this.initialize();
+	}
+	
+	JoyStick.prototype = {
+		initialize: function() {
+			var _self = this;
+			this.touchstart = function(event) {
+				if (_self.disabled) {
+					return;
+				}
+				event.preventDefault();
+				var touchEvent = event.targetTouches[0];
+				_self.actionStart(touchEvent);
+			};
+			
+			this.touchmove = function(event) {
+				if (_self.disabled) {
+					return;
+				}
+				event.preventDefault();
+				var touchEvent = event.targetTouches[0];
+				_self.inAction(touchEvent);
+			};
+			
+			this.touchend = function(event) {
+				if (_self.disabled) {
+					return;
+				}
+				event.preventDefault();
+				_self.actionEnd(null);
+			};
+		},
+		
+		apply: function(b) {
+			if (b) {
+				this.disabled = false;
+				document.addEventListener("touchstart", this.touchstart, false);
+				document.addEventListener("touchmove", this.touchmove, false);
+				document.addEventListener("touchend", this.touchend, false);
+			} else {
+				this.disabled = true;
+				document.removeEventListener("touchstart", this.touchstart, false);
+				document.removeEventListener("touchmove", this.touchmove, false);
+				document.removeEventListener("touchend", this.touchend, false);
+			}
+		},
+		
+		actionStart: function(touchEvent) {
+			this.startX = touchEvent.pageX;
+			this.startY = touchEvent.pageY;
+			this.keyActived = false;
+		},
+		
+		inAction: function(touchEvent) {
+			if (this.keyActived) {
+				return;
+			}
+			var posX = touchEvent.pageX;
+			var posY = touchEvent.pageY;
+			var _x = posX - this.startX;
+			var _y = posY - this.startY;
+			var val = -1;
+			if (Math.abs(_x) >= Math.abs(_y)) {
+				if (_x > 0) {							//right
+					val = 1;
+				} else if (_x < 0) {					//left
+					val = 3;
+				}
+			} else {
+				if (_y > 0) {							//down
+					val = 2;
+				} else if (_y < 0) {					//up
+					val = 0;
+				}
+			}
+			if (val != -1) {
+				this.keyActived = true;
+				this.onkeydown(val);
+				var _self = this;
+				setTimeout(function() {
+					_self.processing(val);
+				}, 300);
+			}
+		},
+		
+		actionEnd: function(touchEvent) {
+			this.keyActived = false;
+		},
+		
+		processing: function(val) {
+			if (this.disabled) {
+				return;
+			}
+			if (!this.keyActived) {
+				return;
+			}
+			
+			this.onkeydown(val);
+			var _self = this;
+			setTimeout(function() {
+				_self.processing(val);
+			}, 50);
+		}
+	}
 </script>
 <script type="text/javascript">
 	var CUBE_SIZE = 20;
@@ -319,53 +434,34 @@ div.cube {
 		},
 		
 		loadTouchPanelControl : function() {
-			var self = this;
-			var addListener = document.addEventListener || document.attachEvent;
-			addListener.call(document, "touchstart", function(event) {
-				if (!self.running) {
-					return;
-				}
-				event.preventDefault();
-				var touchEvent = event.targetTouches[0];
-				this.startX = touchEvent.pageX;
-				this.startY = touchEvent.pageY;
-			}, false);
-			
-			addListener.call(document, "touchmove", function(event) {
-				if (!self.running) {
-					return;
-				}
-				event.preventDefault();
-				var touchEvent = event.targetTouches[0];
-				var posX = touchEvent.pageX;
-				var posY = touchEvent.pageY;
-				var _x = posX - this.startX;
-				var _y = posY - this.startY;
-				
-				var direct = '';
-				if (Math.abs(_x) >= Math.abs(_y)) {
-					if (_x > 0) {							//right
-						if (self.reachRight() == false) {
-							self.move(1, 0);
-						}
-					} else if (_x < 0) {					//left
-						if (self.reachLeft() == false) {
-							self.move(-1, 0);
-						}
+			this.joyStick = new JoyStick();
+			var _self = this;
+			this.joyStick.onkeydown = function(v) {
+				switch(v) {
+				case 0:
+					if (_self.canTransform() == true) {
+						_self.currentBlock.transform();
+						_self.currentBlock.updateUI();
 					}
-				} else {
-					if (_y > 0) {							//down
-						if (self.reachBottom() == false) {
-							self.move(0, 1);
-						}
-					} else if (_y < 0) {					//up
-						if (self.canTransform() == true) {
-							self.currentBlock.transform();
-							self.currentBlock.updateUI();
-						}
+					break;
+				case 1:
+					if (_self.reachRight() == false) {
+						_self.move(1, 0);
 					}
+					break;
+				case 2:
+					if (_self.reachBottom() == false) {
+						_self.move(0, 1);
+					}
+					break;
+				case 3:
+					if (_self.reachLeft() == false) {
+						_self.move(-1, 0);
+					}
+					break;
 				}
-			}, false);
+			};
+			this.joyStick.apply(true);
 		},
 		
 		start : function() {
@@ -520,6 +616,11 @@ div.cube {
 		gameEventCheck : function() {
 			if (this.gameOver() == true) {
 				this.running = false;
+				
+				if (this.joyStick) {
+					this.joyStick.apply(false);
+				}
+				
 				return;
 			}
 			this.removeFullLine();
@@ -739,10 +840,10 @@ div.cube {
 		game.start();
 	}
 
-	function debug(msg) {
-		//		var consol = $('console');
-		//		consol.innerHTML = consol.innerHTML + "<br>" + msg;
-	}
+	/* function debug(msg) {
+			var consol = $('console');
+			consol.innerHTML = consol.innerHTML + "<br>" + msg;
+	} */
 </script>
 </head>
 <body>
