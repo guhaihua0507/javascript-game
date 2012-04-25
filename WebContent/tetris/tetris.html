@@ -51,7 +51,7 @@ div.cube {
 		this.touchend = null;
 		
 		this.disabled = true;
-		this.keyActived = false;
+		this.keyValue = -1;
 		/*
 		 * customer action, 
 		 * param: 0-up, 1-right, 2-down, 3-left
@@ -107,13 +107,10 @@ div.cube {
 		actionStart: function(touchEvent) {
 			this.startX = touchEvent.pageX;
 			this.startY = touchEvent.pageY;
-			this.keyActived = false;
+			this.keyValue = -1;
 		},
 		
 		inAction: function(touchEvent) {
-			if (this.keyActived) {
-				return;
-			}
 			var posX = touchEvent.pageX;
 			var posY = touchEvent.pageY;
 			var _x = posX - this.startX;
@@ -132,25 +129,30 @@ div.cube {
 					val = 0;
 				}
 			}
+			
+			if (this.keyValue == val) {
+				return;
+			}
+			
 			if (val != -1) {
-				this.keyActived = true;
 				this.onkeydown(val);
 				var _self = this;
 				setTimeout(function() {
 					_self.processing(val);
 				}, 300);
 			}
+			this.keyValue = val;
 		},
 		
 		actionEnd: function(touchEvent) {
-			this.keyActived = false;
+			this.keyValue = -1;
 		},
 		
 		processing: function(val) {
 			if (this.disabled) {
 				return;
 			}
-			if (!this.keyActived) {
+			if (val != this.keyValue) {
 				return;
 			}
 			
