@@ -3,6 +3,8 @@
 <head>
 <title>Tetris</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="../popup/css.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../popup/popup.js"></script>
 <style type="text/css">
 div.main {
 	position: relative;
@@ -486,7 +488,8 @@ div.cube {
 				}
 				this.gameEventCheck();
 				if (this.running == false) {
-					alert('Game Over');
+					//alert('Game Over');
+					new Message("GAME OVER");
 					return;
 				}
 				this.initNewBlock();

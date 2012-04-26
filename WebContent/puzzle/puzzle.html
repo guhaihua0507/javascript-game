@@ -2,6 +2,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="../popup/css.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../popup/popup.js"></script>
 <title>Puzzle</title>
 <style type="text/css">
 div.game {
@@ -196,19 +198,6 @@ div.img {
 
 			imgobj.style.backgroundImage = 'url(' + url + ')';
 			
-			/**var img = new Image();
-			img.src = url;
-
-			var w = "";
-			var h = "";
-			if (img.width > imgobj.clientWidth || img.heigth > imgobj.clientHeight) {
-				if (img.width / img.height > imgobj.clientWidth / imgobj.clientHeight) {
-					w = "width='100%'";
-				} else {
-					h = "height='100%'";
-				}
-			}
-			imgobj.innerHTML = "<img " + w + " " + h + " src='" + url + "'/>";*/
 		},
 		
 		start : function() {
@@ -284,7 +273,7 @@ div.img {
 		},
 
 		onComplete : function() {
-			alert('congratulation!');
+			new Message("Congratulation!");
 		},
 		
 		move : function(x, y, effect) {
@@ -300,7 +289,7 @@ div.img {
 		},
 
 		shuffle : function() {
-			var level = 30;
+			var level = 1;
 			var prev = -1;
 			for (var i = 0; i < level; i++) {
 				var movPos = this.getRandomBlock(prev);

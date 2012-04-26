@@ -4,6 +4,8 @@
 <title>Snake</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link href="css/snake.css" rel="stylesheet" type="text/css">
+<link href="../popup/css.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../popup/popup.js"></script>
 <script type="text/javascript">
 	var $ = function(id) {
 		return document.getElementById(id);
@@ -193,7 +195,7 @@
 		
 		initKeyboard: function() {
 			var _game = this;
-			document.onkeyup = function(event) {
+			document.onkeydown = function(event) {
 				if(_game.snake.moving == false) {
 					return;
 				}
@@ -286,7 +288,7 @@
 		
 		gameOver: function() {
 			this.isStarted = false;
-			if (this.warnUI == null) {
+			/* if (this.warnUI == null) {
 				this.warnUI = document.createElement('div');
 				this.warnUI.className = "dialog";
 				this.warnUI.innerHTML = "GAME OVER";
@@ -295,7 +297,11 @@
 					_game.restart();
 				}
 			}
-			this.panel.appendChild(this.warnUI);
+			this.panel.appendChild(this.warnUI); */
+			var _game = this;
+			var msg = new Message('GAME OVER', function(){
+				_game.restart();
+			});
 		},
 		
 		addFood: function() {
