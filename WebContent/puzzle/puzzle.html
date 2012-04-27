@@ -273,7 +273,8 @@ div.img {
 		},
 
 		onComplete : function() {
-			new Message("Congratulation!");
+			var _self = this;
+			Popup.newDialog("Congratulation").show();
 		},
 		
 		move : function(x, y, effect) {

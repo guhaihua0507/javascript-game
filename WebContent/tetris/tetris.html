@@ -355,13 +355,33 @@ div.cube {
 		},
 
 		removeCube : function(cube) {
-			if (cube.uiElement == null)
+			if (cube.uiElement == null) {
 				return;
+			}
 			this.uiElement.removeChild(cube.uiElement);
 			cube.filled = false;
 			cube.uiElement = null;
 		},
-
+		
+		removeBlock : function(block) {
+			if (block == null) {
+				return;
+			}
+			var blockCubes = block.cubes;
+			for (var i = 0; i < blockCubes.length; i++) {
+				for (var j = 0; j < blockCubes[i].length; j++) {
+					this.removeCube(blockCubes[i][j]);
+				}
+			}
+		},
+		
+		clean : function() {
+			var childNodes = this.uiElement.childNodes;
+			for (var i = childNodes.length - 1; i >= 0; i--) {
+				this.uiElement.removeChild(childNodes[i]);
+			}
+		},
+		
 		addBlock : function(block) {
 			block.container = this;
 		}
@@ -371,6 +391,7 @@ div.cube {
 	 * class Game
 	 */
 	var Game = function(gamePanel, statePanle) {
+		this.INIT_SPEED = 300;
 		this.CHECK_POINTS = [ 0, 30, 60, 100, 150, 210, 280, 360, 450, 550, 660 ];
 		this.LEVEL_DESCRIPTION = [ 'too easy', 'piece of cake', 'nothing more',
 				'no big deal', 'take a breath', 'get harder', 'cant catch it',
@@ -380,10 +401,10 @@ div.cube {
 		this.statePanel = statePanle;
 		this.currentBlock = null;
 		this.nextBlock = null;
-		this.cubes = new Array();
+		this.cubes = null;
 
 		this.running = false;
-		this.speed = 300;
+		this.speed = this.INIT_SPEED;
 		this.level = -1;
 
 		this.totalBlockCount = 0;
@@ -397,13 +418,7 @@ div.cube {
 	}
 	Game.prototype = {
 		initialize : function() {
-			for ( var i = 0; i < this.gamePanel.height; i++) {
-				var line = new Array();
-				for ( var j = 0; j < this.gamePanel.width; j++) {
-					line[j] = new Cube(j, i);
-				}
-				this.cubes[i] = line;
-			}
+			this.initGrid();
 			this.loadControlPanel();
 		},
 		
@@ -415,6 +430,17 @@ div.cube {
 			}
 		},
 
+		initGrid : function() {
+			this.cubes = [];
+			for ( var i = 0; i < this.gamePanel.height; i++) {
+				var line = new Array();
+				for ( var j = 0; j < this.gamePanel.width; j++) {
+					line[j] = new Cube(j, i);
+				}
+				this.cubes[i] = line;
+			}
+		},
+		
 		loadKeyboardControl : function() {
 			var self = this;
 			/*load keyboard*/
@@ -479,17 +505,51 @@ div.cube {
 			this.run();
 		},
 
+		restart : function() {
+			this.clean();
+			this.reset();
+			this.start();
+		},
+		
+		reset : function() {
+			this.running = false;
+			this.speed = this.INIT_SPEED;
+			this.level = -1;
+			this.totalBlockCount = 0;
+			this.point = 0;
+			this.lineCount = 0;
+			this.updateGameResults();
+		},
+		
+		clean : function() {
+			if (this.statePanel) {
+				this.statePanel.removeBlock(this.nextBlock);
+			}
+			this.currentBlock = null;
+			this.nextBlock = null;
+			this.gamePanel.clean();
+			this.initGrid();
+		},
+		
 		run : function() {
-			if (this.running == false)
+			if (this.running == false) {
 				return;
+			}
 			if (this.currentBlock == null || this.reachBottom()) {
 				if (this.currentBlock != null) {
 					this.replaceCubes(this.currentBlock);
 				}
 				this.gameEventCheck();
 				if (this.running == false) {
-					//alert('Game Over');
-					new Message("GAME OVER");
+					var _self = this;
+					var dialog = Popup.newDialog("GAME OVER");
+					dialog.addButton({
+						value: 'Restart',
+						action: function() {
+							_self.restart();
+						}
+					});
+					dialog.show();
 					return;
 				}
 				this.initNewBlock();
