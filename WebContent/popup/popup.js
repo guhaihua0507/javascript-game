@@ -80,40 +80,4 @@ Dialog.prototype = {
 		}
 		return ui;
 	}
-	
-	/*createConfirmButton : function() {
-		var btn = document.createElement("input");
-		btn.type = "button";
-		btn.value = 'OK';
-		var _self = this;
-		if (this.onConfirm) {
-			btn.onclick = function() {
-				_self.onConfirm();
-				_self.close();
-			};
-		} else {
-			btn.onclick = function() {
-				_self.close();
-			};
-		}
-		return btn;
-	},
-
-	createCancelButton : function() {
-		var btn = document.createElement("input");
-		btn.type = "button";
-		btn.value = "Cancel";
-		var _self = this;
-		if (this.onCancel) {
-			btn.onclick = function() {
-				_self.onCancel();
-				_self.close();
-			};
-		} else {
-			btn.onclick = function() {
-				_self.close();
-			};
-		}
-		return btn;
-	}*/
 };
