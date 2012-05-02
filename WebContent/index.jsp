@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -30,7 +31,7 @@
 </head>
 <body>
 <form name='user' action="login.do" method="get">
-<table align="center">
+<table style="margin-left: auto;margin-right: auto;">
  <tr>
  	<td align="right">id:</td>
  	<td><input type='text' name='userId' id="userId"></td>
