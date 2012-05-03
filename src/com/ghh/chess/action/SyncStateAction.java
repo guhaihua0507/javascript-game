@@ -43,7 +43,7 @@ public class SyncStateAction extends GameAction {
 
 			writeLine(data.getDataString());
 
-			System.out.println("sync game -- player:" + ((User) session.getAttribute("user")).getId() + " -- step:" + stepNo);
+			System.out.println("[sync state] player:" + ((User) session.getAttribute("user")).getId() + ", step:#" + stepNo);
 		}
 	}
 }

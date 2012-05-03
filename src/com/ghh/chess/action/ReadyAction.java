@@ -24,7 +24,7 @@ public class ReadyAction extends GameAction {
 		
 		game.ready4Game(userId);
 		
-		System.out.println("ready to play --- player:" + userId + "-- game:" + gameId);
+		System.out.println("[ready to play] player:" + userId + ", game:#" + gameId);
 	}
 }
 

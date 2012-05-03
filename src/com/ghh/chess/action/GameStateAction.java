@@ -44,8 +44,6 @@ public class GameStateAction extends GameAction {
 		
 		int status = game.getStatus();
 		if (status == Game.STATUS_WAITING) {
-			System.out.println("game state -- player:" + userId + "-- game:" + gameId);
-			
 			DataPackage data = new DataPackage();
 			data.addValue("protocol", Protocols.CLIENT_PROTOCOL_WAITING);
 			if (other != null) {
@@ -56,6 +54,7 @@ public class GameStateAction extends GameAction {
 			}
 			writeLine(data.getDataString());
 			
+			System.out.println("[game state] player:" + userId + ", game:#" + gameId);
 			return;
 		}
 		

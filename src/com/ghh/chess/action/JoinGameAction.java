@@ -33,7 +33,7 @@ public class JoinGameAction extends GameAction {
 			writeLine("can not join game!");
 		}
 		
-		System.out.println("join game -- player:" + userId + " -- game:" + gameId);
+		System.out.println("[join game] player:" + userId + ", game:#" + gameId);
 	}
 }
 
