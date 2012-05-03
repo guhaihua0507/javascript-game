@@ -10,7 +10,7 @@
 	Player player = (Player)request.getAttribute("player");
 %>
 <style type="text/css">
-div.chessboard {
+.chessboard {
 	position: relative;
 	width: 400px;
 	height: 400px;
@@ -18,11 +18,19 @@ div.chessboard {
 	float: left;
 }
 
-div.grid {
+.grid {
 	position: absolute;
 	width: 38px;
 	height: 38px;
 	border: 1px solid blue;
+}
+
+.grid_blank {
+	cursor: pointer;
+}
+
+.grid_blank:hover {
+	background-color: #EEEEEE;
 }
 
 .stateboard {
@@ -100,8 +108,7 @@ div.grid {
 		initialize : function() {
 			var pos = this.board.getGridPos(this.x, this.y);
 			this.ui = document.createElement('div');
-			this.ui.className = 'grid';
-			this.ui.style.backgroundColor = 'white';
+			this.ui.className = 'grid grid_blank';
 			this.ui.style.left = pos.left + "px";
 			this.ui.style.top = pos.top + "px";
 			this.board.ui.appendChild(this.ui);
@@ -120,7 +127,7 @@ div.grid {
 		deactivate : function() {
 			this.value = -1;
 			this.ui.onclick = null;
-			this.ui.style.backgroundColor = 'white';
+			this.ui.style.backgroundColor = 'transparent';
 		},
 
 		showChess : function(value) {
