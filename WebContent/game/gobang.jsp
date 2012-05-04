@@ -23,6 +23,7 @@
 	width: 38px;
 	height: 38px;
 	border: 1px solid blue;
+	background-image: url("");
 }
 
 .grid_blank {
@@ -127,15 +128,15 @@
 		deactivate : function() {
 			this.value = -1;
 			this.ui.onclick = null;
-			this.ui.style.backgroundColor = 'transparent';
+			this.ui.style.backgroundImage = '';
 		},
 
 		showChess : function(value) {
 			this.value = value;
 			if (value == 0) {
-				this.ui.style.backgroundColor = 'black';
+				this.ui.style.backgroundImage = 'url("pic/chess_black.jpg")';
 			} else {
-				this.ui.style.backgroundColor = 'red';
+				this.ui.style.backgroundImage = 'url("pic/chess_white.jpg")';
 			}
 		}
 	};
