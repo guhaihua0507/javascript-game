@@ -39,7 +39,6 @@ public abstract class Game {
 	 */
 	public Player getPlayer(Long id) {
 		for (Player p : players) {
-			System.out.println("id=" + id + ", check player:" + p.getId());
 			if (p.getId().equals(id)) {
 				return p;
 			}
