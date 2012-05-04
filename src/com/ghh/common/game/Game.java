@@ -7,7 +7,7 @@ public abstract class Game {
 	public final static int STATUS_WAITING = 0;
 	public final static int STATUS_PLAYING = 1;
 
-	private Long id;
+	private Long gameId;
 	protected int status = STATUS_WAITING;
 
 	private List<Integer> authPool = new ArrayList<Integer>();
@@ -20,7 +20,7 @@ public abstract class Game {
 	 *            - game id
 	 */
 	public Game(Long id) {
-		this.id = id;
+		this.gameId = id;
 		int limit = getPlayerLimit();
 		for (int i = 0; i < limit; i++) {
 			authPool.add(i);
@@ -28,7 +28,7 @@ public abstract class Game {
 	}
 
 	public Long getId() {
-		return id;
+		return gameId;
 	}
 
 	/**
@@ -39,6 +39,7 @@ public abstract class Game {
 	 */
 	public Player getPlayer(Long id) {
 		for (Player p : players) {
+			System.out.println("id=" + id + ", check player:" + p.getId());
 			if (p.getId().equals(id)) {
 				return p;
 			}
@@ -119,8 +120,8 @@ public abstract class Game {
 	 * 
 	 * @param playerId
 	 */
-	public void leaveGame(Long playerId) {
-		Player player = getPlayer(id);
+	public synchronized void leaveGame(Long playerId) {
+		Player player = getPlayer(playerId);
 		if (player == null) {
 			return;
 		}

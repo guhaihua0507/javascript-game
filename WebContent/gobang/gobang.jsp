@@ -362,7 +362,7 @@
 				rivalName.innerText = 'N/A';
 				rivalStatus.innerText = 'N/A';
 			}
-		}
+		};
 	};
 
 	function ready2Play() {

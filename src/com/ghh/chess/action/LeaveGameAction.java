@@ -23,6 +23,7 @@ public class LeaveGameAction extends GameAction {
 		Gobang game = (Gobang) lobby.getGame(gameId);
 		
 		game.leaveGame(userId);
+		System.out.println("[leave game] player:" + userId + ", game:#" + gameId);
 	}
 }
 
