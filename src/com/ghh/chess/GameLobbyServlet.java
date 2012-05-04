@@ -18,6 +18,6 @@ public class GameLobbyServlet extends HttpServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		GameLobby lobby = GameContext.getContext().getLobby();
 		request.setAttribute("gamelist", lobby.getGames());
-		request.getRequestDispatcher("/game/lobby.jsp").forward(request, response);
+		request.getRequestDispatcher("/gobang/lobby.jsp").forward(request, response);
 	}
 }

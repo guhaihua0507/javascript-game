@@ -28,7 +28,7 @@ public class JoinGameAction extends GameAction {
 			request.setAttribute("gameId", game.getId());
 			request.setAttribute("player", game.getPlayer(userId));
 			
-			request.getRequestDispatcher("/game/gobang.jsp").forward(request, response);
+			request.getRequestDispatcher("/gobang/gobang.jsp").forward(request, response);
 		} else {
 			writeLine("can not join game!");
 		}
