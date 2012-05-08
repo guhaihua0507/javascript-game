@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Game {
-	public final static int STATUS_WAITING = 0;
-	public final static int STATUS_PLAYING = 1;
+	public final static int	STATUS_WAITING	= 0;
+	public final static int	STATUS_PLAYING	= 1;
 
-	private Long gameId;
-	protected int status = STATUS_WAITING;
+	protected int			status			= STATUS_WAITING;
+	private Long			gameId;
 
-	private List<Integer> authPool = new ArrayList<Integer>();
-	private List<Player> players = new ArrayList<Player>();
+	private List<Integer>	playerPool		= new ArrayList<Integer>();
+	private List<Player>	players			= new ArrayList<Player>();
 
 	/**
 	 * construction
 	 * 
-	 * @param id
+	 * @param gameId
 	 *            - game id
 	 */
-	public Game(Long id) {
-		this.gameId = id;
+	public Game(Long gameId) {
+		this.gameId = gameId;
 		int limit = getPlayerLimit();
 		for (int i = 0; i < limit; i++) {
-			authPool.add(i);
+			playerPool.add(i);
 		}
 	}
 
@@ -34,12 +34,12 @@ public abstract class Game {
 	/**
 	 * get player by playerId
 	 * 
-	 * @param id
+	 * @param userId
 	 * @return
 	 */
-	public Player getPlayer(Long id) {
+	public Player getPlayer(Long userId) {
 		for (Player p : players) {
-			if (p.getId().equals(id)) {
+			if (p.getUserId().equals(userId)) {
 				return p;
 			}
 		}
@@ -74,10 +74,10 @@ public abstract class Game {
 	/**
 	 * player ready for game
 	 * 
-	 * @param id
+	 * @param userId
 	 */
-	public void ready4Game(Long id) {
-		Player player = getPlayer(id);
+	public void readyPlayer(Long userId) {
+		Player player = getPlayer(userId);
 		if (player == null) {
 			return;
 		}
@@ -130,16 +130,16 @@ public abstract class Game {
 	}
 
 	private void grantAuth(Player player) {
-		Integer auth = authPool.remove(0);
-		player.setAuthId(auth);
+		Integer auth = playerPool.remove(0);
+		player.setPlayNo(auth);
 	}
 
 	private void releaseAuth(Player player) {
-		Integer authId = player.getAuthId();
-		if (authId == -1) {
+		Integer playNo = player.getPlayNo();
+		if (playNo == -1) {
 			return;
 		}
-		authPool.add(authId);
+		playerPool.add(playNo);
 	}
 
 	protected void startGame() {

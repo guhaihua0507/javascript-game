@@ -330,8 +330,8 @@
 
 //---------------------------------------------------------------------------------------
 	var gameId = <%= gameId%>;
-	var authId = <%= player.getAuthId()%>;
-	var playerId = '<%= player.getId()%>';
+	var authId = <%=player.getPlayNo()%>;
+	var playerId = '<%= player.getUserId()%>';
 
 	var game;
 	window.onload = function() {

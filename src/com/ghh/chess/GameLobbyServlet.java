@@ -13,7 +13,7 @@ import com.ghh.common.game.GameLobby;
  * Servlet implementation class GameLobbyServlet
  */
 public class GameLobbyServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		GameLobby lobby = GameContext.getContext().getLobby();

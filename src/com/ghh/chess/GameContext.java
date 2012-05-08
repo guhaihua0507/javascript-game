@@ -8,14 +8,14 @@ import com.ghh.common.game.GameLobby;
  */
 
 public class GameContext {
-	private final static GameContext context = new GameContext();
+	private final static GameContext	context	= new GameContext();
+
+	private final int					size	= 10;
+	private GameLobby					lobby;
+
 	public static GameContext getContext() {
 		return context;
 	}
-
-	private final int size = 10;
-
-	private GameLobby lobby;
 
 	private GameContext() {
 		lobby = new GameLobby();
@@ -23,7 +23,6 @@ public class GameContext {
 			lobby.addGame(new Gobang(new Long(i)));
 		}
 	}
-
 
 	public GameLobby getLobby() {
 		return lobby;

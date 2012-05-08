@@ -8,7 +8,7 @@ import com.ghh.common.game.GameLobby;
 
 /**
  * @author haihua.gu <br>
- * Create on May 10, 2010
+ * @Create on May 10, 2010
  */
 
 public class ReadyAction extends GameAction {
@@ -18,13 +18,12 @@ public class ReadyAction extends GameAction {
 		Long gameId = Long.parseLong(getParameter("gameId"));
 		User user = (User) request.getSession().getAttribute("user");
 		Long userId = user.getId();
-		
+
 		GameLobby lobby = GameContext.getContext().getLobby();
 		Gobang game = (Gobang) lobby.getGame(gameId);
-		
-		game.ready4Game(userId);
-		
+
+		game.readyPlayer(userId);
+
 		System.out.println("[ready to play] player:" + userId + ", game:#" + gameId);
 	}
 }
-

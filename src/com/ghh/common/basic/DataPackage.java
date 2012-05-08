@@ -1,7 +1,7 @@
 package com.ghh.common.basic;
 
 public class DataPackage {
-	private StringBuffer data = new StringBuffer();
+	private StringBuffer	data	= new StringBuffer();
 
 	public void addValue(String name, String d) {
 		if (data.length() > 0) {
@@ -16,7 +16,7 @@ public class DataPackage {
 		}
 		data.append(name + ":" + json);
 	}
-	
+
 	public String getDataString() {
 		return "{" + data.toString() + "}";
 	}

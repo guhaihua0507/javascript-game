@@ -5,14 +5,13 @@ import com.ghh.chess.Protocols;
 
 /**
  * @author haihua.gu <br>
- * Create on May 10, 2010
+ *         Create on May 10, 2010
  */
 
 public class ActionFactory {
 	private ActionFactory() {
-		
 	}
-	
+
 	public static GameAction getAction(String protocol) {
 		if (Protocols.PROTOCOL_GAMESTATE.equals(protocol)) {
 			return new GameStateAction();
@@ -35,4 +34,3 @@ public class ActionFactory {
 		return null;
 	}
 }
-

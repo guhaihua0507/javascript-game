@@ -3,46 +3,53 @@ package com.ghh.common.game;
 import com.ghh.common.basic.User;
 
 public class Player {
-	public static final int PLAYERSTATUS_WAITING = 0;
-	public static final int PALYERSTATUS_READY = 1;
-	public static final int PLAYERSTATUS_PLAYING = 2;
+	public static final int	PLAYERSTATUS_WAITING	= 0;
+	public static final int	PALYERSTATUS_READY		= 1;
+	public static final int	PLAYERSTATUS_PLAYING	= 2;
 
-	private Long id;
-	private String name;
-	
-	private int status = PLAYERSTATUS_WAITING;
-	private int authId = -1;
-	
+	private Long			userId;
+	private String			name;
+
+	private int				status					= PLAYERSTATUS_WAITING;
+	private int				playNo					= -1;
+
 	public Player() {
 	}
-	
+
 	public Player(User u) {
-		this.id = u.getId();
+		this.userId = u.getId();
 		this.name = u.getName();
 	}
-	
-	public Long getId() {
-		return id;
+
+	public Long getUserId() {
+		return userId;
 	}
-	public void setId(Long id) {
-		this.id = id;
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public int getStatus() {
 		return status;
 	}
+
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public int getAuthId() {
-		return authId;
+
+	public int getPlayNo() {
+		return playNo;
 	}
-	public void setAuthId(int authId) {
-		this.authId = authId;
+
+	public void setPlayNo(int playNo) {
+		this.playNo = playNo;
 	}
 }

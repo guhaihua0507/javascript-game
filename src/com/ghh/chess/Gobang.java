@@ -37,20 +37,20 @@ public class Gobang extends Game {
 			return;
 		}
 		stepNo++;
-		int authId = p.getAuthId();
-		chesses[y][x] = authId;
+		int playNo = p.getPlayNo();
+		chesses[y][x] = playNo;
 
 		/*
 		 * update stepNo
 		 */
 		lastStep = new Step();
 		lastStep.setPlayer(p);
-		lastStep.setSerialNo(stepNo);
+		lastStep.setStepNo(stepNo);
 		lastStep.setX(x);
 		lastStep.setY(y);
 
 		if (isGameOver()) {
-			winner = lastStep.getPlayer().getAuthId();
+			winner = lastStep.getPlayer().getPlayNo();
 			resetGame();
 		} else if (!hasMoreSpace()) {
 			winner = -1;
