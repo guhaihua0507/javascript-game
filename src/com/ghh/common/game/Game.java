@@ -10,7 +10,7 @@ public abstract class Game {
 	protected int			status			= STATUS_WAITING;
 	private Long			gameId;
 
-	private List<Integer>	playerPool		= new ArrayList<Integer>();
+	private List<Integer>	playNoPool		= new ArrayList<Integer>();
 	private List<Player>	players			= new ArrayList<Player>();
 
 	/**
@@ -23,7 +23,7 @@ public abstract class Game {
 		this.gameId = gameId;
 		int limit = getPlayerLimit();
 		for (int i = 0; i < limit; i++) {
-			playerPool.add(i);
+			playNoPool.add(i);
 		}
 	}
 
@@ -130,7 +130,7 @@ public abstract class Game {
 	}
 
 	private void grantAuth(Player player) {
-		Integer auth = playerPool.remove(0);
+		Integer auth = playNoPool.remove(0);
 		player.setPlayNo(auth);
 	}
 
@@ -139,7 +139,7 @@ public abstract class Game {
 		if (playNo == -1) {
 			return;
 		}
-		playerPool.add(playNo);
+		playNoPool.add(playNo);
 	}
 
 	protected void startGame() {
