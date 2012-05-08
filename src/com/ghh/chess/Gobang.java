@@ -67,19 +67,19 @@ public class Gobang extends Game {
 
         int length = 0;
         length = geComboChess(x, y, -1, 0) + geComboChess(x, y, 1, 0);
-        if (length == 6) {
+        if (length >= 6) {
             return true;
         }
         length = geComboChess(x, y, 0, -1) + geComboChess(x, y, 0, 1);
-        if (length == 6) {
+        if (length >= 6) {
             return true;
         }
         length = geComboChess(x, y, -1, -1) + geComboChess(x, y, 1, 1);
-        if (length == 6) {
+        if (length >= 6) {
             return true;
         }
         length = geComboChess(x, y, -1, 1) + geComboChess(x, y, 1, -1);
-        if (length == 6) {
+        if (length >= 6) {
             return true;
         }
 
