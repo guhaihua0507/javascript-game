@@ -8,10 +8,10 @@ import com.ghh.common.game.Player;
  */
 
 public class Step {
+	private int		stepNo;
 	private Player	player;
 	private int		x;
 	private int		y;
-	private int		stepNo;
 
 	public Player getPlayer() {
 		return player;
