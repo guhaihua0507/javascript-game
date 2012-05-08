@@ -4,7 +4,7 @@ import com.ghh.common.game.GameLobby;
 
 /**
  * @author haihua.gu <br>
- *         Create on May 10, 2010
+ * @Create on May 10, 2010
  */
 
 public class GameContext {
