@@ -22,7 +22,7 @@ public class GobangGameServlet extends HttpServlet {
 		try {
 			String protocol = request.getParameter("p");
 			if (protocol == null || protocol.length() == 0) {
-				return;
+				protocol = Protocols.PROTOCOL_JOINGAME;
 			}
 			GameAction action = ActionFactory.getAction(protocol);
 			action.setRequest(request);

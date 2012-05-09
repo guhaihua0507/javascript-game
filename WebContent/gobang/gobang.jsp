@@ -141,7 +141,7 @@
 		}
 	};
 
-	var Gobang = function(id, gameId, authId, playerId) {
+	var Gobang = function(id, gameId, playNo, playerId) {
 		this.ui = document.getElementById(id);
 		this.gridSize = 40;
 
@@ -151,10 +151,10 @@
 
 		/*game status*/
 		this.gameId = gameId;
-		this.authId = authId;
+		this.playNo = playNo;
 		this.playerId = playerId;
-		this.nextAuth = 0;
-		this.rival = null;
+		this.currentPlayNo = 0;
+		this.otherPlayer = null;
 
 		this.isReady = false;
 		this.playing = false;
@@ -213,60 +213,53 @@
 			if (dataText.length > 0) {
 				var data = eval('(' + dataText + ')');
 				var protocol = data.protocol;
-				if (protocol == '00') {		//waiting
-					this.rival =data.rival;
-					if (this.onStateChange) {
-						this.onStateChange();
-					}
-					return;
-				}
-				if (protocol == '01') {
-					this.rival = data.rival;
+				if (protocol == '00') {
+					/*
+					 * game is still waiting player to ready
+					 */
+					this.otherPlayer = data.rival;
+				} else if (protocol == '01') {
+					/*game start*/
+					this.otherPlayer = data.rival;
 					this.startGame();
-					return;
-				}
-				if (protocol == '02') {		//sync state
-					if (this.authId == data.authId) {
+				} else if (protocol == '02') {
+					/*sync game status*/
+					if (this.playNo == data.authId) {
 						return;
 					}
 					this.grids[data.y][data.x].showChess(data.authId);
 					this.step++;
-					this.nextAuth = this.authId;
-					return;
-				}
-				if (protocol == '03') { //game over
+					this.currentPlayNo = this.playNo;
+				} else if (protocol == '03') {
+					/*game is over*/
 					if (!this.playing) {
 						return;
 					}
 					var winner = data.winner;
 					if (winner == -1) {
 						alert('draw');
-					} else if (winner == this.authId) {
+					} else if (winner == this.playNo) {
 						alert('you win!');
-					} else if (winner == this.rival.authId) {
+					} else if (winner == this.otherPlayer.authId) {
 						alert('you lost');
 					}
-
 					/*reste game*/
 					this.resetGame();
-
-					return;
 				}
+				
+				this.onGameStateChange();
 			}
 		},
 
 		resetGame : function() {
 			this.playing = false;
 			this.isReady = false;
-			this.nextAuth = 0;
+			this.currentPlayNo = 0;
 			this.step = 0;
 			for (var i = 0; i < this.height; i++) {
 				for (var j = 0; j < this.width; j++) {
 					this.grids[i][j].deactivate();
 				}
-			}
-			if (this.onStateChange) {
-				this.onStateChange();
 			}
 		},
 		
@@ -278,9 +271,7 @@
 			this.response.onComplete = null;
 			this.response.send("gobang?p=05&gameId=" + this.gameId);
 			this.isReady = true;
-			if (this.onStateChange) {
-				this.onStateChange();
-			}
+			this.onGameStateChange();
 		},
 		
 		startGame : function() {
@@ -290,9 +281,6 @@
 				}
 			}
 			this.playing = true;
-			if (this.onStateChange) {
-				this.onStateChange();
-			}
 		},
 
 		quit : function() {
@@ -302,20 +290,28 @@
 			location.href = "lobby";
 		},
 		
+		onGameStateChange: function() {
+			if (this.onStateChange) {
+				this.onStateChange();
+			}
+		},
+		
 		putChess : function(chess) {
 			if (!this.playing) {
 				return;
 			}
-			if (this.nextAuth != this.authId) {
+			if (this.currentPlayNo != this.playNo) {
 				return;
 			}
-			chess.showChess(this.authId);
+			chess.showChess(this.playNo);
 			
 			var url = "gobang?p=02&gameId=" + this.gameId + "&chess=" + chess.x + "," + chess.y;
 			this.response.onComplete = null;
 			this.response.send(url);
-			this.nextAuth = this.rival.authId;
+			this.currentPlayNo = this.otherPlayer.authId;
 			this.step++;
+			//notify state change
+			this.onGameStateChange();
 		},
 		
 		getGridPos : function(x, y) {
@@ -330,41 +326,61 @@
 
 //---------------------------------------------------------------------------------------
 	var gameId = <%= gameId%>;
-	var authId = <%=player.getPlayNo()%>;
+	var playNo = <%=player.getPlayNo()%>;
 	var playerId = '<%= player.getUserId()%>';
 
 	var game;
 	window.onload = function() {
-		game = new Gobang('chessboard', gameId, authId, playerId);
+		game = new Gobang('chessboard', gameId, playNo, playerId);
 		game.onStateChange = function() {
-			var myStatus = document.getElementById('myStatus');
-			var rivalName = document.getElementById('rivalName');
-			var rivalStatus = document.getElementById('rivalStatus');
+			var playerStatus = document.getElementById('playerStatus');
+			var playerStatusImg = document.getElementById('playerStatusImg');
+			
+			var otherPlayerName = document.getElementById('otherPlayerName');
+			var otherPlayerStatus = document.getElementById('otherPlayerStatus');
+			var otherPlayerStatusImg = document.getElementById('otherPlayerStatusImg');
 			
 			if (game.playing) {
-				myStatus.innerText = 'playing';
+				playerStatus.innerHTML = 'Playing';
 			} else {
 				if (game.isReady) {
-					myStatus.innerText = 'ready';
+					playerStatus.innerHTML = 'Ready';
 				} else {
-					myStatus.innerText = 'waiting ready';
+					playerStatus.innerHTML = 'Waiting';
 				}
 			}
 
-			if (game.rival) {
-				rivalName.innerText = game.rival.name;
+			if (game.otherPlayer) {
+				otherPlayerName.innerHTML = game.otherPlayer.name;
 				if (game.playing) {
-					rivalStatus.innerText = 'playing';
+					otherPlayerStatus.innerHTML = 'Playing';
 				} else {
-					rivalStatus.innerText = 'waiting';
+					otherPlayerStatus.innerHTML = 'Waiting';
 				}
 			} else {
-				rivalName.innerText = 'N/A';
-				rivalStatus.innerText = 'N/A';
+				otherPlayerName.innerHTML = 'N/A';
+				otherPlayerStatus.innerHTML = 'N/A';
+			}
+			
+			if (!game.playing) {
+				playerStatusImg.style.display = "none";
+				otherPlayerStatusImg.style.display = "none";
+			} else {
+				if (game.currentPlayNo == game.playNo) {
+					playerStatusImg.style.display = "block";
+				} else {
+					playerStatusImg.style.display = "none";
+				}
+				
+				if (game.currentPlayNo == game.otherPlayer.authId) {
+					otherPlayerStatusImg.style.display = "block";
+				} else {
+					otherPlayerStatusImg.style.display = "none";
+				}
 			}
 		};
 	};
-
+	
 	function ready2Play() {
 		game.readyPlay();
 	}
@@ -380,10 +396,18 @@
 <div class="stateboard">
  <table style="width: 100%; height: 100%;">
   <tr><td valign="bottom">
-    Player:&nbsp;<%= player.getName() %><br>
-  	Status:&nbsp;<span id='myStatus'>N/A</span><br><br>
-  	Rival:&nbsp;<span id='rivalName'>N/A</span><br>
-  	Status:&nbsp;<span id='rivalStatus'>N/A</span>
+  	<table>
+  		<tr height="40px" align="left">
+  			<td><span id="playerStatusImg" style="display: none;"><img src="pic/waiting.gif"></span></td>
+  			<td><span><%= player.getName() %></span></td>
+  			<td><span id='playerStatus'>N/A</span></td>
+  		</tr>
+  		<tr height="40px" align="left">
+  			<td><span id="otherPlayerStatusImg" style="display: none;"><img src="pic/waiting.gif"></span></td>
+  			<td><span id='otherPlayerName'>N/A</span></td>
+  			<td><span id='otherPlayerStatus'>N/A</span></td>
+  		</tr>
+  	</table>
   </td></tr>
  </table>
 </div>

@@ -18,7 +18,7 @@
 			Game game = (Game)o;
 	%>
 	<tr>
-		<td><a href="gobang?p=03&gameId=<%= game.getId()%>">Game #<%= game.getId()%></a></td>
+		<td><a href="gobang?gameId=<%= game.getId()%>">Game #<%= game.getId()%></a></td>
 	</tr>
 	<%	} %>
 </table>
