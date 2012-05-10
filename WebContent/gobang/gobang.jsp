@@ -45,6 +45,7 @@
 		this.req = null;
 		this.async = false;
 		this.onComplete = null;
+		this.onError = null;
 		this.method = 'GET';
 		this.initialize(param);
 	};
@@ -87,7 +88,11 @@
 							_self.onComplete(req.responseText);
 						}
 					} else {
-						alert('cant get response from server');
+						if (_self.onError) {
+							_self.onError();
+						} else {
+							alert('cant get response from server');
+						}
 					}
 				}
 			};
@@ -161,12 +166,11 @@
 		this.step = 0;
 
 		/*transport*/
-		this.intevel = 2000;	//	sync server per 2 seconds
+		this.interval = 2000;	//	sync server per 2 seconds
 		this.request = null;
 		this.response = null;
 
 		this.onStateChange = null;
-		
 		this.initialize();
 	};
 
@@ -206,7 +210,7 @@
 			var _self = this;
 			setTimeout(function() {
 				_self.syncServer();
-			}, this.intevel);
+			}, this.interval);
 		},
 		/*get data from server and parse it*/
 		processDataPackage : function(dataText) {
@@ -224,10 +228,10 @@
 					this.startGame();
 				} else if (protocol == '02') {
 					/*sync game status*/
-					if (this.playNo == data.authId) {
+					if (this.playNo == data.playNo) {
 						return;
 					}
-					this.grids[data.y][data.x].showChess(data.authId);
+					this.grids[data.y][data.x].showChess(data.playNo);
 					this.step++;
 					this.currentPlayNo = this.playNo;
 				} else if (protocol == '03') {
@@ -240,7 +244,7 @@
 						alert('draw');
 					} else if (winner == this.playNo) {
 						alert('you win!');
-					} else if (winner == this.otherPlayer.authId) {
+					} else if (winner == this.otherPlayer.playNo) {
 						alert('you lost');
 					}
 					/*reste game*/
@@ -308,7 +312,7 @@
 			var url = "gobang?p=02&gameId=" + this.gameId + "&chess=" + chess.x + "," + chess.y;
 			this.response.onComplete = null;
 			this.response.send(url);
-			this.currentPlayNo = this.otherPlayer.authId;
+			this.currentPlayNo = this.otherPlayer.playNo;
 			this.step++;
 			//notify state change
 			this.onGameStateChange();
@@ -372,7 +376,7 @@
 					playerStatusImg.style.display = "none";
 				}
 				
-				if (game.currentPlayNo == game.otherPlayer.authId) {
+				if (game.currentPlayNo == game.otherPlayer.playNo) {
 					otherPlayerStatusImg.style.display = "block";
 				} else {
 					otherPlayerStatusImg.style.display = "none";

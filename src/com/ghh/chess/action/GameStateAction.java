@@ -38,7 +38,7 @@ public class GameStateAction extends GameAction {
 			DataPackage otherPlayer = new DataPackage();
 			otherPlayer.addValue("playerId", String.valueOf(other.getUserId()));
 			otherPlayer.addValue("name", other.getName());
-			otherPlayer.addValue("authId", String.valueOf(other.getPlayNo()));
+			otherPlayer.addValue("playNo", String.valueOf(other.getPlayNo()));
 			rival = otherPlayer.getDataString();
 		}
 

@@ -36,7 +36,7 @@ public class SyncStateAction extends GameAction {
             Step step = game.getLastStep();
             DataPackage data = new DataPackage();
             data.addValue("protocol", Protocols.ClIENT_PROTOCOL_SYNC);
-            data.addValue("authId", String.valueOf(step.getPlayer().getPlayNo()));
+            data.addValue("playNo", String.valueOf(step.getPlayer().getPlayNo()));
             data.addValue("x", String.valueOf(step.getX()));
             data.addValue("y", String.valueOf(step.getY()));
             data.addValue("serialNo", String.valueOf(step.getStepNo()));
