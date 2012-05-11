@@ -403,7 +403,7 @@
   <tr><td valign="bottom">
   	<table>
   		<tr height="40px" align="left">
-  			<td><span id="playerStatusImg" style="display: none;"><img src="pic/waiting.gif"></span></td>
+  			<td width="20"><span id="playerStatusImg" style="display: none;"><img src="pic/waiting.gif"></span></td>
   			<td><span><%= player.getName() %></span></td>
   			<td><span id='playerStatus'>N/A</span></td>
   		</tr>
