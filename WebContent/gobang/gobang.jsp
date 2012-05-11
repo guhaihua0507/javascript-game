@@ -200,6 +200,7 @@
 
 		syncServer : function() {
 			var url = 'gobang?gameId=' + this.gameId;
+			url += "&status=" + (this.playing ? '2' : (this.isReady ? '1' : '0'));
 			if (this.playing == false) {
 				url += '&p=00';
 			} else {
@@ -239,14 +240,9 @@
 					if (!this.playing) {
 						return;
 					}
-					var winner = data.winner;
-					if (winner == -1) {
-						alert('draw');
-					} else if (winner == this.playNo) {
-						alert('you win!');
-					} else if (winner == this.otherPlayer.playNo) {
-						alert('you lost');
-					}
+					//var winner = data.winner;
+					var msg = data.msg;
+					alert(msg);
 					/*reste game*/
 					this.resetGame();
 				}
@@ -356,11 +352,16 @@
 
 			if (game.otherPlayer) {
 				otherPlayerName.innerHTML = game.otherPlayer.name;
-				if (game.playing) {
-					otherPlayerStatus.innerHTML = 'Playing';
-				} else {
-					otherPlayerStatus.innerHTML = 'Waiting';
+				var status = game.otherPlayer.status;
+				var statusStr = '';
+				if (status == 0) {
+					statusStr = 'Waiting';
+				} else if (status == 1) {
+					statusStr = 'Ready';
+				} else if (status == 2) {
+					statusStr = 'Playing';
 				}
+				otherPlayerStatus.innerHTML = statusStr;
 			} else {
 				otherPlayerName.innerHTML = 'N/A';
 				otherPlayerStatus.innerHTML = 'N/A';

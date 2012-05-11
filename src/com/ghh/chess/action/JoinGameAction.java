@@ -17,7 +17,8 @@ public class JoinGameAction extends GameAction {
 	@Override
 	public void action() throws Exception {
 		Long gameId = Long.parseLong(getParameter("gameId"));
-		User user = (User) session.getAttribute("user");
+		
+		User user = getUser();
 		Long userId = user.getId();
 
 		GameLobby lobby = GameContext.getContext().getLobby();
@@ -27,12 +28,9 @@ public class JoinGameAction extends GameAction {
 		if (game.getPlayer(userId) != null || game.joinGame(player)) {
 			request.setAttribute("gameId", game.getId());
 			request.setAttribute("player", game.getPlayer(userId));
-
 			request.getRequestDispatcher("/gobang/gobang.jsp").forward(request, response);
 		} else {
-			writeLine("can not join game!");
+			sendMessage("can not join game!");
 		}
-
-		System.out.println("[join game] player:" + userId + ", game:#" + gameId);
 	}
 }

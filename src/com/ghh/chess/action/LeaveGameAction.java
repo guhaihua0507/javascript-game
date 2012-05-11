@@ -1,10 +1,7 @@
 package com.ghh.chess.action;
 
 import com.ghh.chess.GameAction;
-import com.ghh.chess.GameContext;
 import com.ghh.chess.Gobang;
-import com.ghh.common.basic.User;
-import com.ghh.common.game.GameLobby;
 
 /**
  * @author haihua.gu <br>
@@ -16,13 +13,9 @@ public class LeaveGameAction extends GameAction {
 	@Override
 	public void action() throws Exception {
 		Long gameId = Long.parseLong(getParameter("gameId"));
-		User user = (User) session.getAttribute("user");
-		Long userId = user.getId();
+		Long userId = getUser().getId();
 
-		GameLobby lobby = GameContext.getContext().getLobby();
-		Gobang game = (Gobang) lobby.getGame(gameId);
-
+		Gobang game = getGame(gameId);
 		game.leaveGame(userId);
-		System.out.println("[leave game] player:" + userId + ", game:#" + gameId);
 	}
 }

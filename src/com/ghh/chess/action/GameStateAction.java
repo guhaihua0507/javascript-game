@@ -1,13 +1,11 @@
 package com.ghh.chess.action;
 
+import org.json.JSONObject;
+
 import com.ghh.chess.GameAction;
-import com.ghh.chess.GameContext;
 import com.ghh.chess.Gobang;
 import com.ghh.chess.Protocols;
-import com.ghh.common.basic.DataPackage;
-import com.ghh.common.basic.User;
 import com.ghh.common.game.Game;
-import com.ghh.common.game.GameLobby;
 import com.ghh.common.game.Player;
 
 /**
@@ -19,51 +17,37 @@ public class GameStateAction extends GameAction {
 
 	@Override
 	public void action() throws Exception {
-		String id = getParameter("gameId");
-		Long gameId = Long.parseLong(id);
-
-		User user = (User) session.getAttribute("user");
-		Long userId = user.getId();
-
-		GameLobby lobby = GameContext.getContext().getLobby();
-		Gobang game = (Gobang) lobby.getGame(gameId);
+		Long gameId = getLongParameter("gameId");
+		Long userId = getUser().getId();
+		Gobang game = getGame(gameId);
 
 		if (game.getPlayer(userId) == null) {
 			return;
 		}
 
 		Player other = getOtherPlayer(game, userId);
-		String rival = null;
+		JSONObject otherPlayer = null;
 		if (other != null) {
-			DataPackage otherPlayer = new DataPackage();
-			otherPlayer.addValue("playerId", String.valueOf(other.getUserId()));
-			otherPlayer.addValue("name", other.getName());
-			otherPlayer.addValue("playNo", String.valueOf(other.getPlayNo()));
-			rival = otherPlayer.getDataString();
+			otherPlayer = new JSONObject();
+			otherPlayer.put("playerId", other.getUserId());
+			otherPlayer.put("name", other.getName());
+			otherPlayer.put("playNo", other.getPlayNo());
+			otherPlayer.put("status", other.getStatus());
 		}
 
 		int status = game.getStatus();
 		if (status == Game.STATUS_WAITING) {
-			DataPackage data = new DataPackage();
-			data.addValue("protocol", Protocols.CLIENT_PROTOCOL_WAITING);
+			JSONObject data = new JSONObject();
+			data.put("protocol", Protocols.CLIENT_PROTOCOL_WAITING);
 			if (other != null) {
-				System.out.println("rival:" + other.getUserId());
-				data.addObject("rival", rival);
-			} else {
-				System.out.println("no rival");
+				data.put("rival", otherPlayer);
 			}
-			writeLine(data.getDataString());
-
-			System.out.println("[game state] player:" + userId + ", game:#" + gameId);
-			return;
-		}
-
-		if (status == Game.STATUS_PLAYING) {
-			DataPackage data = new DataPackage();
-			data.addValue("protocol", Protocols.CLIENT_RPOTOCOL_START);
-			data.addObject("rival", rival);
-			writeLine(data.getDataString());
-			return;
+			sendMessage(data.toString());
+		} else if (status == Game.STATUS_PLAYING) {
+			JSONObject data = new JSONObject();
+			data.put("protocol", Protocols.CLIENT_RPOTOCOL_START);
+			data.put("rival", otherPlayer);
+			sendMessage(data.toString());
 		}
 	}
 

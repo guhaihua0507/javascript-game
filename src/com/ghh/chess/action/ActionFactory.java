@@ -4,20 +4,17 @@ import com.ghh.chess.GameAction;
 import com.ghh.chess.Protocols;
 
 /**
- * @author haihua.gu <br>
- *         Create on May 10, 2010
+ * @author haihua.gu
+ * @Create on May 10, 2010
  */
 
-public class ActionFactory {
-	private ActionFactory() {
-	}
-
+public abstract class ActionFactory {
 	public static GameAction getAction(String protocol) {
 		if (Protocols.PROTOCOL_GAMESTATE.equals(protocol)) {
 			return new GameStateAction();
 		}
 		if (Protocols.PROTOCOL_SYNCSTATE.equals(protocol)) {
-			return new SyncStateAction();
+			return new GameSyncAction();
 		}
 		if (Protocols.PROTOCOL_JOINGAME.equals(protocol)) {
 			return new JoinGameAction();

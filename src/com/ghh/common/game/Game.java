@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Game {
-	public final static int	STATUS_WAITING	= 0;
-	public final static int	STATUS_PLAYING	= 1;
+	public final static int		STATUS_WAITING	= 0;
+	public final static int		STATUS_PLAYING	= 1;
 
-	protected int			status			= STATUS_WAITING;
-	private Long			gameId;
+	protected int				status			= STATUS_WAITING;
+	protected Long				gameId;
 
-	private List<Integer>	playNoPool		= new ArrayList<Integer>();
-	private List<Player>	players			= new ArrayList<Player>();
+	protected List<Integer>		playNoPool		= new ArrayList<Integer>();
+	protected List<Player>		players			= new ArrayList<Player>();
+	protected List<MessageBox>	message			= new ArrayList<MessageBox>();
 
 	/**
 	 * construction
@@ -124,17 +125,38 @@ public abstract class Game {
 		if (player == null) {
 			return;
 		}
+		if (status == Game.STATUS_PLAYING) {
+			for (Player p : players) {
+				if (p.getStatus() != Player.PLAYERSTATUS_PLAYING) {
+					continue;
+				}
+				MessageBox msg = new MessageBox();
+				msg.setMessage("Player " + player.getName() + " left game.");
+				msg.setPlayerId(p.getUserId());
+				message.add(msg);
+			}
+		}
 		players.remove(player);
-		releaseAuth(player);
+		releasePlayerNo(player);
 		resetGame();
 	}
 
+	public synchronized MessageBox fetchMessageBox(Long userId) {
+		for (MessageBox msg : message) {
+			if (msg.getPlayerId() == userId.longValue()) {
+				message.remove(msg);
+				return msg;
+			}
+		}
+		return null;
+	}
+	
 	private void grantAuth(Player player) {
 		Integer auth = playNoPool.remove(0);
 		player.setPlayNo(auth);
 	}
 
-	private void releaseAuth(Player player) {
+	private void releasePlayerNo(Player player) {
 		Integer playNo = player.getPlayNo();
 		if (playNo == -1) {
 			return;
@@ -144,9 +166,16 @@ public abstract class Game {
 
 	protected void startGame() {
 		status = STATUS_PLAYING;
+		message.clear();
+		for (Player p : players) {
+			p.setStatus(Player.PLAYERSTATUS_PLAYING);
+		}
 	}
 
 	protected void resetGame() {
 		status = STATUS_WAITING;
+		for (Player p : players) {
+			p.setStatus(Player.PLAYERSTATUS_WAITING);
+		}
 	}
 }
