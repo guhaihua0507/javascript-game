@@ -167,6 +167,7 @@
 
 		/*transport*/
 		this.interval = 2000;	//	sync server per 2 seconds
+		this.connectError = false;
 		this.request = null;
 		this.response = null;
 
@@ -191,6 +192,11 @@
 			this.request = new Ajax({
 				onComplete : function(data) {
 					_self.processDataPackage(data);
+				},
+				
+				onError: function() {
+					alert('can not access to server');
+					_self.connectError = true;
 				}
 			});
 			this.response = new Ajax();
@@ -210,7 +216,9 @@
 
 			var _self = this;
 			setTimeout(function() {
-				_self.syncServer();
+				if (!_self.connectError) {
+					_self.syncServer();
+				}
 			}, this.interval);
 		},
 		/*get data from server and parse it*/
@@ -284,10 +292,14 @@
 		},
 
 		quit : function() {
-			this.response.async = true;
-			this.response.onComplete = null;
+			this.response.async = false;
+			this.response.onComplete = function() {
+				location.href = "lobby";
+			};
+			this.response.onError = function() {
+				location.href = "lobby";
+			};
 			this.response.send("gobang?p=04&gameId=" + this.gameId);
-			location.href = "lobby";
 		},
 		
 		onGameStateChange: function() {
