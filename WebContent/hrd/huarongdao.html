@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Hua rong dao</title>
+<style type="text/css">
+.mainboard {
+	position: relative;
+	width: 400px;
+	height: 500px;
+	border: 1px solid black;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.block {
+	position: absolute;
+	border: 1px solid blue;
+}
+
+</style>
+<script type="text/javascript">
+	var GameUI = function(id) {
+		this.ui = document.getElementById(id);
+		this.width = null;
+		this.height = null;
+		this.initialize();
+	}
+	
+	GameUI.prototype = {
+		initialize: function() {
+			this.width = this.ui.clientWidth;
+			this.height = this.ui.clientHeight;
+		},
+		
+		show: function(el, x, y) {
+			if (!this.ui.contains(el)) {
+				this.ui.appendChild(el);
+			}
+			el.style.left = x + "px";
+			el.style.top = y + "px";
+		}
+	}
+	
+	/*
+	 * w-block width, h-block height, x,y-block position in game coordinate
+	 * px-cell width
+	 */
+	var Block = function(w, h, x, y, px) {
+		this.ui = null;
+		this.w = w;
+		this.h = h;
+		this.x = x;
+		this.y = y;
+		this.cell = [];
+		this.px = px;
+		
+		this.game = null;
+		
+		this.initialize();
+	}
+	Block.prototype = {
+		initialize: function() {
+			this.ui = document.createElement('div');
+			this.ui.className = 'block';
+			this.ui.style.width = (this.px * this.w - 2) + "px";
+			this.ui.style.height = (this.px * this.h - 2) + "px";
+			this.refresh();
+		},
+		
+		refresh: function() {
+			for (var i = 0; i < this.h; i++) {
+				this.cell[i] = [];
+				for (var j = 0; j < this.w; j++) {
+					this.cell[i][j] = {'x':this.x + j, 'y':this.y + i};
+				}
+			}
+		},
+		
+		move: function(x, y) {
+			this.x = x;
+			this.y = y;
+			this.refresh();
+		}
+	}
+	
+	window.onload = function() {
+		var gameUI = new GameUI('main');
+		var boss = new Block(2, 2, 1, 0, 100);
+		var posX = 100;
+		var posY = 0;
+		gameUI.show(boss.ui, posX, posY);
+	}
+</script>
+</head>
+<body>
+	<div id="main" class="mainboard">
+		<div id="bb"></div>
+	</div>
+</body>
+</html>
