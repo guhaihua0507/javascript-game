@@ -142,11 +142,11 @@
 		},
 		
 		showBlock: function(block) {
-			var pos = this.uiPosition(block.x, block.y);
+			var pos = this.mapUIPosition(block.x, block.y);
 			this.gameUI.show(block.ui, pos.x, pos.y);
 		},
 		
-		uiPosition: function(x, y) {
+		mapUIPosition: function(x, y) {
 			return {x: this.PIX * x, y: this.PIX * y};
 		},
 		
