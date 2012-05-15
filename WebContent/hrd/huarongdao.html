@@ -17,7 +17,6 @@
 	position: absolute;
 	border: 1px solid blue;
 }
-
 </style>
 <script type="text/javascript">
 	var GameUI = function(id) {
@@ -46,16 +45,16 @@
 	 * w-block width, h-block height, x,y-block position in game coordinate
 	 * px-cell width
 	 */
-	var Block = function(w, h, x, y, px) {
+	var Block = function(w, h, x, y, game) {
 		this.w = w;
 		this.h = h;
 		this.x = x;
 		this.y = y;
 		this.cell = [];
 		this.ui = null;
-		this.px = px;
-		
-		this.game = null;
+
+		this.game = game;
+		this.px = game.PIX;
 		
 		this.initialize();
 	}
@@ -66,13 +65,19 @@
 			this.ui.style.width = (this.px * this.w - 2) + "px";
 			this.ui.style.height = (this.px * this.h - 2) + "px";
 			this.refresh();
+			var _self = this;
+			this.ui.onclick = function() {
+				_self.game.onMove(_self);
+			}
 		},
 		
 		refresh: function() {
 			for (var i = 0; i < this.h; i++) {
 				this.cell[i] = [];
 				for (var j = 0; j < this.w; j++) {
-					this.cell[i][j] = {'x':this.x + j, 'y':this.y + i};
+					var posX = this.x + j;
+					var posY = this.y + i;
+					this.cell[i][j] = {x : posX, y : posY, value : 1};
 				}
 			}
 		},
@@ -84,18 +89,156 @@
 		}
 	}
 	
+	var Game = function(id) {
+		this.WIDTH = 4;
+		this.HEIGHT = 5;
+		this.PIX = 100;
+		
+		this.gameUI = new GameUI(id);
+		this.cells = [];
+		this.blocks = [];
+		this.moveBlocked = false;
+		
+		this.history = [];
+		
+		this.initialize();
+	}
+	
+	Game.prototype = {
+		initialize: function() {
+			this.initCells();
+			this.initBlocks();
+			this.showBlocks();
+		},
+		
+		initCells: function() {
+			for (var i = 0; i < this.HEIGHT; i++) {
+				this.cells[i] = [];
+				for (var j = 0; j < this.WIDTH; j++) {
+					this.cells[i][j] = 0;
+				}
+			}
+		},
+		
+		initBlocks: function() {
+			this.blocks.length = 0;
+			this.blocks.push(new Block(2, 2, 1, 0, this));		//cao cao
+			this.blocks.push(new Block(1, 2, 0, 0, this));
+			this.blocks.push(new Block(1, 2, 3, 0, this));
+			this.blocks.push(new Block(1, 2, 0, 2, this));
+			this.blocks.push(new Block(2, 1, 1, 2, this));
+			this.blocks.push(new Block(1, 1, 1, 3, this));
+			this.blocks.push(new Block(1, 1, 2, 3, this));
+			this.blocks.push(new Block(1, 2, 3, 2, this));
+			this.blocks.push(new Block(1, 1, 0, 4, this));
+			this.blocks.push(new Block(1, 1, 3, 4, this));
+		},
+		
+		showBlocks: function() {
+			for (var i = 0; i < this.blocks.length; i++) {
+				this.showBlock(this.blocks[i]);
+				this.updateCell(this.blocks[i], true);
+			}
+		},
+		
+		showBlock: function(block) {
+			var pos = this.uiPosition(block.x, block.y);
+			this.gameUI.show(block.ui, pos.x, pos.y);
+		},
+		
+		uiPosition: function(x, y) {
+			return {x: this.PIX * x, y: this.PIX * y};
+		},
+		
+		moveBlock: function(block, x, y) {
+			this.updateCell(block, false);
+			block.move(x, y);
+			this.showBlock(block);
+			this.updateCell(block, true);
+		},
+		
+		updateCell: function(block, b) {
+			for (var i = 0; i < block.cell.length; i++) {
+				for (var j = 0; j < block.cell[i].length; j++) {
+					var bc = block.cell[i][j];
+					this.cells[bc.y][bc.x] = b ? 1 : 0;
+				}
+			}
+		},
+		
+		onMove: function(block) {
+			var dx = 0;
+			var dy = 0;
+			if (this.movable(block, 0)) {
+				dx = 0;
+				dy = -1;
+			} else if (this.movable(block, 1)) {
+				dx = 1;
+				dy = 0;
+			} else if (this.movable(block, 2)) {
+				dx = 0;
+				dy = 1;
+			} else if (this.movable(block, 3)) {
+				dx = -1;
+				dy = 0;
+			}
+			if (dx != 0 || dy != 0) {
+				var toX = block.x + dx;
+				var toY = block.y + dy;
+				this.moveBlock(block, toX, toY);
+			}
+		},
+		/*d - direct, 0-up, 1-right, 2-down, 3-left*/
+		movable: function(block, d) {
+			var can = true;
+			if (d == 0) {
+				for (var i = 0; i < block.cell[0].length; i++) {
+					var c = block.cell[0][i];
+					if (c.y == 0 || this.cells[c.y - 1][c.x] == 1) {
+						can = false;
+						break;
+					}
+				}
+			} else if (d == 1) {
+				var lastIndex = block.cell[0].length - 1;
+				for (var i = 0; i < block.cell.length; i++) {
+					var c = block.cell[i][lastIndex];
+					if (c.x == this.WIDTH - 1 || this.cells[c.y][c.x + 1] == 1) {
+						can = false;
+						break;
+					}
+				}
+			} else if (d == 2) {
+				var lastIndex = block.cell.length - 1;
+				for (var i = 0; i < block.cell[lastIndex].length; i++) {
+					var c = block.cell[lastIndex][i];
+					if (c.y == this.HEIGHT - 1 || this.cells[c.y + 1][c.x] == 1) {
+						can = false;
+						break;
+					}
+				}
+			} else if (d == 3) {
+				for (var i = 0; i < block.cell.length; i++) {
+					var c = block.cell[i][0];
+					if (c.x == 0 || this.cells[c.y][c.x - 1] == 1) {
+						can = false;
+						break;
+					}
+				}
+			} else {
+				can = false;
+			}
+			return can;
+		}
+	}
+	
+	var game = null;
 	window.onload = function() {
-		var gameUI = new GameUI('main');
-		var boss = new Block(2, 2, 1, 0, 100);
-		var posX = 100;
-		var posY = 0;
-		gameUI.show(boss.ui, posX, posY);
+		game = new Game('main');
 	}
 </script>
 </head>
 <body>
-	<div id="main" class="mainboard">
-		<div id="bb"></div>
-	</div>
+	<div id="main" class="mainboard"></div>
 </body>
 </html>
