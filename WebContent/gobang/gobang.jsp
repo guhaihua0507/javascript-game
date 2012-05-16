@@ -16,14 +16,18 @@
 	height: 400px;
 	border: 1px solid;
 	float: left;
+	background-color: #D9E2EA;
 }
 
 .grid {
 	position: absolute;
 	width: 38px;
 	height: 38px;
-	border: 1px solid blue;
 	background-image: url("");
+	border-left: 1px solid white;
+	border-right:1px solid black;
+	border-top: 1px solid white;
+	border-bottom: 1px solid black;
 }
 
 .grid_blank {

@@ -5,22 +5,29 @@ div.panel {
 	height: 400px;
 	margin-left: auto;
 	margin-right: auto;
+	background-color: #D9E2EA;
 }
 
 div.food {
 	position: absolute;
-	border: 1px solid green;
 	width: 18px;
 	height: 18px;
 	background-color: red;
+	border-left: 1px solid white;
+	border-right:1px solid black;
+	border-top: 1px solid white;
+	border-bottom: 1px solid black;
 }
 
 div.snake {
 	position: absolute;
-	border: 1px solid red;
 	width: 18px;
 	height: 18px;
 	background-color: green;
+	border-left: 1px solid white;
+	border-right:1px solid black;
+	border-top: 1px solid white;
+	border-bottom: 1px solid black;
 }
 
 div.dialog {
