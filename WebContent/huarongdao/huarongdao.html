@@ -233,6 +233,15 @@
 				dragobj.readyDrag = false;
 				dragobj.moveDirect = null;
 			};
+			//TODO untested
+			this.ui.onmouseout = function(event) {
+				if (!dragobj.readyDrag) {
+					return;
+				}
+				dragobj.readyDrag = false;
+				dragobj.moveDirect = null;
+				block.game.showBlock(block);
+			}
 		}
 	}
 	
