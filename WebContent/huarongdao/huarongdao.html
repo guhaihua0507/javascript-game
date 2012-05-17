@@ -33,6 +33,14 @@
 	background-color: #EEEEEE;
 }
 
+.console {
+	position: relative;
+	width: 400px;
+	height: 200px;
+	border: 1px solid #777777;
+	overflow: scroll;
+}
+
 </style>
 <script type="text/javascript">
 	var GameUI = function(id) {
@@ -155,11 +163,6 @@
 				dragobj.startMouseY = event.clientY;
 				dragobj.mouseX = event.clientX;
 				dragobj.mouseY = event.clientY;
-				if (this.setCapture) {
-					this.setCapture();
-				} else if (window.captureEvents) {
-					window.captureEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
-				}
 			};
 			
 			this.ui.onmousemove = function(event) {
@@ -198,6 +201,10 @@
 					return;
 				}
 				
+				debug("boundary:" + boundary.vertical + "," + boundary.horizontal + ",direct:" + direct);
+				debug("offsetX:" + offsetX + ", offsetY:" + offsetY);
+				debug("pos:left:" + dragobj.offsetLeft + ", top:" + dragobj.offsetTop);
+				
 				if (direct == 0) {
 					dragobj.style.top = Math.max(dragobj.offsetTop + offsetY, boundary.vertical) + "px";
 					dragobj.moveDirect = {x:0, y:-1};
@@ -225,11 +232,6 @@
 					block.game.moveBlock(block, block.x + dragobj.moveDirect.x, block.y + dragobj.moveDirect.y);
 				}
 				
-				if (this.releaseCapture) {
-					this.releaseCapture();
-				} else if (window.releaseEvents) {
-					window.releaseEvents(Event.MOUSEDOWN|Event.MOUSEMOVE|Event.MOUSEUP);
-				}
 				dragobj.readyDrag = false;
 				dragobj.moveDirect = null;
 			};
@@ -369,9 +371,15 @@
 	window.onload = function() {
 		var game = new Game('main');
 	}
+	
+	function debug(msg) {
+		var consol = document.getElementById('console');
+		consol.innerHTML = consol.innerHTML + "<br>" + msg;
+	} 
 </script>
 </head>
 <body>
 	<div id="main" class="mainboard"></div>
+	<div id='console' class="console"></div>
 </body>
 </html>
