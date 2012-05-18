@@ -202,8 +202,8 @@
 				}
 				
 				debug("boundary:" + boundary.vertical + "," + boundary.horizontal + ",direct:" + direct);
-				debug("offsetX:" + offsetX + ", offsetY:" + offsetY);
-				debug("pos:left:" + dragobj.offsetLeft + ", top:" + dragobj.offsetTop);
+				debug("pos:left:" + dragobj.startX + ", top:" + dragobj.startY);
+				debug("toX:" + posX + ", toY:" + posY);
 				
 				if (direct == 0) {
 					dragobj.style.top = Math.max(posY, boundary.vertical) + "px";
