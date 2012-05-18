@@ -161,8 +161,8 @@
 				dragobj.boundaries = boundaries;
 				dragobj.startMouseX = event.clientX;
 				dragobj.startMouseY = event.clientY;
-				dragobj.mouseX = event.clientX;
-				dragobj.mouseY = event.clientY;
+				dragobj.startX = dragobj.offsetLeft;
+				dragobj.startY = dragobj.offsetTop;
 			};
 			
 			this.ui.onmousemove = function(event) {
@@ -172,22 +172,22 @@
 				var offsetStartX = event.clientX - dragobj.startMouseX;
 				var offsetStartY = event.clientY - dragobj.startMouseY;
 				var direct = -1;
-				var offsetX = 0;
-				var offsetY = 0;
+				var posX = dragobj.startX;
+				var posY = dragobj.startY;
 				if (Math.abs(offsetStartX) >= Math.abs(offsetStartY)) {
 					if (offsetStartX < 0) {
 						direct = 3;	//left
 					} else if (offsetStartX > 0) {
 						direct = 1;	//right
 					}
-					offsetX = event.clientX - dragobj.mouseX;
+					posX = posX + offsetStartX;
 				} else {
 					if (offsetStartY < 0) {
 						direct = 0;	//up
 					} else if (offsetStartY > 0) {
 						direct = 2;
 					}
-					offsetY = event.clientY - dragobj.mouseY;
+					posY = posY + offsetStartY;
 				}
 				
 				var boundaries = dragobj.boundaries;
@@ -206,21 +206,18 @@
 				debug("pos:left:" + dragobj.offsetLeft + ", top:" + dragobj.offsetTop);
 				
 				if (direct == 0) {
-					dragobj.style.top = Math.max(dragobj.offsetTop + offsetY, boundary.vertical) + "px";
+					dragobj.style.top = Math.max(posY, boundary.vertical) + "px";
 					dragobj.moveDirect = {x:0, y:-1};
 				} else if (direct == 1) {
-					dragobj.style.left = Math.min(dragobj.offsetLeft + offsetX, boundary.horizontal) + "px";
+					dragobj.style.left = Math.min(posX, boundary.horizontal) + "px";
 					dragobj.moveDirect = {x:1, y:0};
 				} else if (direct == 2) {
-					dragobj.style.top = Math.min(dragobj.offsetTop + offsetY, boundary.vertical) + "px";
+					dragobj.style.top = Math.min(posY, boundary.vertical) + "px";
 					dragobj.moveDirect = {x:0, y:1};
 				} else if (direct == 3) {
-					dragobj.style.left = Math.max(dragobj.offsetLeft + offsetX, boundary.horizontal) + "px";
+					dragobj.style.left = Math.max(posX, boundary.horizontal) + "px";
 					dragobj.moveDirect = {x:-1, y:0};
 				}
-				
-				dragobj.mouseX = event.clientX;
-				dragobj.mouseY = event.clientY;
 			};
 			
 			this.ui.onmouseup = function(event) {
