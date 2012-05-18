@@ -27,9 +27,9 @@
 	border-right:1px solid black;
 	border-top: 1px solid white;
 	border-bottom: 1px solid black;
+	cursor: pointer;
 }
 .block:hover {
-	cursor: pointer;
 	background-color: #EEEEEE;
 }
 
@@ -114,7 +114,7 @@
 			var dragobj = this.ui;
 			var block = this;
 			this.ui.onmousedown = function(event) {
-				if (block.game.moveBlocked) {
+				if (block.game.moveOff) {
 					return;
 				}
 				dragobj.readyDrag = false;
@@ -253,7 +253,7 @@
 		this.gameUI = new GameUI(id);
 		this.cells = [];
 		this.blocks = [];
-		this.moveBlocked = false;
+		this.moveOff = false;
 		
 		this.history = [];
 		
@@ -265,7 +265,7 @@
 			this.initCells();
 			this.initBlocks();
 			this.showBlocks();
-			this.loadControlConfig();
+			this.setupControl();
 		},
 		
 		initCells: function() {
@@ -366,60 +366,87 @@
 			return b;
 		},
 		
-		loadControlConfig: function() {
+		setupControl: function() {
 			var game = this;
 			this.addEventListener('mousedown', function(event) {
-				if (game.moveBlocked) {
+				if (game.moveOff) {
 					return;
 				}
-				var srcElement = event.srcElement;
-				if (!srcElement.blockObj) {
+				var uiElement = event.srcElement;
+				var moveBlock = uiElement.blockObj;
+				if (!moveBlock) {
 					return;
 				}
-				game.startMove(srcElement.blockObj, event);
-				game.capturedBlock = srcElement.blockObj;
+				game.blockStartMoving(moveBlock, event);
+				if (uiElement.readyMoving) {
+					game.capturedBlock = moveBlock;
+					if (uiElement.setCapture) {
+						uiElement.setCapture();
+					}
+				}
 			});
 			
 			this.addEventListener('mousemove', function(event) {
-				if (game.moveBlocked) {
+				if (game.moveOff) {
 					return;
 				}
 				if (!game.capturedBlock) {
 					return;
 				}
-				game.onMoving(game.capturedBlock, event);
+				if (!game.capturedBlock.ui.readyMoving) {
+					return;
+				}
+				game.blockOnMoving(game.capturedBlock, event);
 			});
 			
 			this.addEventListener('mouseup', function(event) {
-				if (game.moveBlocked) {
+				if (game.moveOff) {
 					return;
 				}
-				if (!game.capturedBlock) {
+				var moveBlock = game.capturedBlock;
+				if (!moveBlock) {
 					return;
 				}
-				game.endMove(game.capturedBlock, event);
+				if (!moveBlock.ui.readyMoving) {
+					return;
+				}
+				game.blockEndMoving(moveBlock, event);
+				if (moveBlock.ui.releaseCapture) {
+					moveBlock.ui.releaseCapture();
+				}
+				moveBlock.ui.readyMoving = false;
 				game.capturedBlock = null;
 			});
 		},
 		
 		addEventListener: function(e, call) {
-			if (window.addEventListener) {
+			if (window.addEventListener) {			//chrome, firefox
 				window.addEventListener(e, call);
-			} else if (window.attachEvent) {
-				window.attachEvent(e, call);
+			} else if (document.attachEvent) {		//IE7, IE8, IE9
+				document.attachEvent('on' + e, call);	
 			}
 		},
 		
-		startMove: function(block, e) {
-			debug('start move');
+		blockStartMoving: function(block, e) {
+			var uiElement = block.ui;
+			uiElement.startPos = {x:uiElement.offsetLeft, y:uiElement.offsetTop};
+			uiElement.mousePos = {x:e.clientX, y:e.clientY};
+			//TODO fix me
+			uiElement.readyMoving = true;
 		},
 		
-		onMoving: function(block, e) {
-			debug('moving');
+		blockOnMoving: function(block, e) {
+			var uiElement = block.ui;
+			var offsetX = e.clientX - uiElement.mousePos.x;
+			var offsetY = e.clientY - uiElement.mousePos.y;
+			uiElement.style.left = uiElement.startPos.x + offsetX + 'px';
+			uiElement.style.top = uiElement.startPos.y + offsetY + 'px';
 		},
 		
-		endMove: function(block, e) {
-			debug('end move');
+		blockEndMoving: function(block, e) {
+			var uiElement = block.ui;
+			uiElement.mousePos = undefined;
+			uiElement.startPos = undefined;
 		}
 	}
 	
