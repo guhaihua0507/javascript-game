@@ -88,8 +88,9 @@
 			this.ui.className = 'block';
 			this.ui.style.width = (this.px * this.w - 2) + "px";
 			this.ui.style.height = (this.px * this.h - 2) + "px";
+			this.ui.blockObj = this;
 			this.refresh();
-			this.loadControl();
+			//this.loadControl();
 		},
 		
 		refresh: function() {
@@ -264,6 +265,7 @@
 			this.initCells();
 			this.initBlocks();
 			this.showBlocks();
+			this.loadControlConfig();
 		},
 		
 		initCells: function() {
@@ -362,6 +364,62 @@
 				b = false;
 			}
 			return b;
+		},
+		
+		loadControlConfig: function() {
+			var game = this;
+			this.addEventListener('mousedown', function(event) {
+				if (game.moveBlocked) {
+					return;
+				}
+				var srcElement = event.srcElement;
+				if (!srcElement.blockObj) {
+					return;
+				}
+				game.startMove(srcElement.blockObj, event);
+				game.capturedBlock = srcElement.blockObj;
+			});
+			
+			this.addEventListener('mousemove', function(event) {
+				if (game.moveBlocked) {
+					return;
+				}
+				if (!game.capturedBlock) {
+					return;
+				}
+				game.onMoving(game.capturedBlock, event);
+			});
+			
+			this.addEventListener('mouseup', function(event) {
+				if (game.moveBlocked) {
+					return;
+				}
+				if (!game.capturedBlock) {
+					return;
+				}
+				game.endMove(game.capturedBlock, event);
+				game.capturedBlock = null;
+			});
+		},
+		
+		addEventListener: function(e, call) {
+			if (window.addEventListener) {
+				window.addEventListener(e, call);
+			} else if (window.attachEvent) {
+				window.attachEvent(e, call);
+			}
+		},
+		
+		startMove: function(block, e) {
+			debug('start move');
+		},
+		
+		onMoving: function(block, e) {
+			debug('moving');
+		},
+		
+		endMove: function(block, e) {
+			debug('end move');
 		}
 	}
 	
