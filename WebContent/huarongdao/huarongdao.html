@@ -124,13 +124,16 @@
 		this.PIX = 100;
 		
 		this.gameUI = new GameUI(id);
-		this.onFinish = null;
 		this.cells = [];
 		this.blocks = [];
 		this.moveOff = true;
 
 		this.isReplaying = false;
 		this.history = [];
+		this.stepNo = 0;
+
+		this.onFinish = null;
+		this.onMoveBlock = null;
 		
 		this.initialize();
 	}
@@ -190,7 +193,11 @@
 		},
 		
 		onMoveStep: function(block, tox, toy) {
+			this.stepNo++;
 			this.logMove(block, tox, toy);
+			if (this.onMoveBlock) {
+				this.onMoveBlock.call(this, this);
+			}
 			this.checkFinish();
 		},
 		
@@ -474,13 +481,15 @@
 			});
 		}
 	}
-	var game = null;
 	window.onload = function() {
-		game = new Game('main');
+		var game = new Game('main');
 		game.onFinish = function() {
 			alert('finish! replay!');
 			game.replay();
-		}
+		};
+		game.onMoveBlock = function(g) {
+			debug(g.stepNo);
+		};
 		game.start();
 	}
 	
