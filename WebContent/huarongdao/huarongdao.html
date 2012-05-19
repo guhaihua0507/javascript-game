@@ -397,6 +397,20 @@
 			var offsetMouseX = e.clientX - uiElement.mousePos.x;
 			var offsetMouseY = e.clientY - uiElement.mousePos.y;
 			
+			var dir = {dx:0, dy:0};
+			var offsetBlockLeft = uiElement.offsetLeft - uiElement.startPos.x;
+			var offsetBlockTop = uiElement.offsetTop - uiElement.startPos.y;
+			if (offsetBlockLeft < 0) {
+				dir.dx = -1;
+			} else if (offsetBlockLeft > 0) {
+				dir.dx = 1;
+			}
+			if (offsetBlockTop < 0) {
+				dir.dy = -1;
+			} else if (offsetBlockTop > 0) {
+				dir.dy = 1;
+			}
+			
 			var route = uiElement.route;
 			var offsetX = 0;
 			var offsetY = 0;
@@ -408,7 +422,8 @@
 					offsetY = offsetMouseY;
 				}
 			}
-			if (Math.abs(offsetX) > Math.abs(offsetY)) {
+			var isStart = (dir.dx == 0 && dir.dy == 0);
+			if (dir.dx != 0 || (isStart && Math.abs(offsetX) > Math.abs(offsetY))) {
 				offsetX = offsetX > 0 ? Math.min(offsetX, this.PIX) : Math.max(offsetX, 0 - this.PIX);
 				offsetY = 0;
 			} else {
