@@ -14,8 +14,9 @@ div.game {
 
 div.panel {
 	position: relative;
-	border: 1px solid blue;
-	background-color: white;
+	border: 1px solid black;
+	border: 0px\0;	/*ie8, ie9*/
+	border: 1px solid black\9\0;	/*for ie9*/
 	width: 400px;
 	height: 400px;
 	float: left;
