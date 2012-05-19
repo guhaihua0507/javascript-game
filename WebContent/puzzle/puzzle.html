@@ -24,6 +24,8 @@ div.panel {
 
 div.block {
 	position: absolute;
+	width: 98px;
+	height: 98px;
 	overflow: hidden;
 	background-color: white;
 	text-align: center;
@@ -47,44 +49,49 @@ div.img {
 	/*
 	 *class move effect
 	 */
-	var Movement = function(obj) {
-		this.interval = 20;	//one step per 20 milliseconds
-		this.obj = obj;
+	var MoveEffect = function(inteval, movPix) {
+		this.interval = 2 || inteval;
+		this.movPix = 3 || movPix;
 	}
-	Movement.prototype = {
-		move : function(toX, toY, time, callback) {
-			var x = this.obj.offsetLeft;
-			var y = this.obj.offsetTop;
-			
-			var n = time / this.interval;
-			var offsetX = (toX - x) / n;
-			var offsetY = (toY - y) / n;
-			if (offsetX != 0 && Math.abs(offsetX) < 1) {offsetX = offsetX > 0 ? 1 : -1;}
-			if (offsetY != 0 && Math.abs(offsetY) < 1) {offsetY = offsetY > 0 ? 1 : -1;}
 	
-			this.step(toX, toY, offsetX, offsetY, callback);
+	MoveEffect.prototype = {
+		startMove: function(obj, tox, toy, callback) {
+			var offsetX = tox - obj.offsetLeft;
+			var offsetY = toy - obj.offsetTop;
+			var step = {x:0, y:0};
+			if (Math.abs(offsetX) > Math.abs(offsetY)) {
+				step.x = offsetX > 0 ? this.movPix : 0 - this.movPix;
+				if (offsetY != 0) {
+					var v = parseInt(Math.abs(offsetX) / Math.abs(offsetY), 10) * this.movPix;
+					step.y = offsetY > 0 ? v : 0 - v;
+				}
+			} else {
+				step.y = offsetY > 0 ? this.movPix : 0 - this.movPix;
+				if (offsetX != 0) {
+					var v = parseInt(Math.abs(offsetY) / Math.abs(offsetX), 10) * this.movPix;
+				}
+			}
+			this.moveStep(obj, tox, toy, step, callback);
 		},
 		
-		step : function(toX, toY, offsetX, offsetY, callback) {
-			var x = this.obj.offsetLeft;
-			var y = this.obj.offsetTop;
-			
-			if (x == toX && y == toY) {
+		moveStep: function(obj, tox, toy, step, callback) {
+			var posx = obj.offsetLeft;
+			var posy = obj.offsetTop;
+			if ((posx == tox && posy == toy)) {
 				if (callback) {
-					callback();
+					callback.call();
 				}
 				return;
 			}
-	
-			x = (x - toX) * (x + offsetX - toX) <= 0 ? toX : x + offsetX;
-			y = (y - toY) * (y + offsetY - toY) <= 0 ? toY : y + offsetY;
-	
-			this.obj.style.left = x + "px";
-			this.obj.style.top = y + "px";
-	
+			
+			var mov2x = step.x > 0 ? Math.min(tox, posx + step.x) : Math.max(tox, posx + step.x);
+			var mov2y = step.y > 0 ? Math.min(toy, posy + step.y) : Math.max(toy, posy + step.y);
+			obj.style.left = mov2x + "px";
+			obj.style.top = mov2y + "px";
+			
 			var self = this;
 			setTimeout(function() {
-				self.step(toX, toY, offsetX, offsetY, callback);
+				self.moveStep(obj, tox, toy, step, callback);
 			}, this.interval);
 		}
 	}
@@ -125,10 +132,6 @@ div.img {
 					self.container.onclickMove(self.x, self.y);
 				}
 			}
-			var borderWidth = this.ui.offsetWidth - this.ui.clientWidth;
-			var borderHeight = this.ui.offsetHeight - this.ui.clientHeight;
-			this.ui.style.width = (this.width - borderWidth) + "px";
-			this.ui.style.height = (this.height - borderHeight) + "px";
 		},
 		
 		put : function(x, y, effect) {
@@ -137,9 +140,9 @@ div.img {
 			var pos = this.getPosition();
 			
 			if (effect) {
-				var me = new Movement(this.ui);
+				var me = new MoveEffect();
 				var self = this;
-				me.move(pos.left, pos.top, 200, function() {
+				me.startMove(this.ui, pos.left, pos.top, function() {
 					self.container.moving = false;
 				});
 			} else {
@@ -400,7 +403,6 @@ div.img {
 			consol.innerText = html + "\n" + msg;
 		}
 	}
-	
 </script>
 </head>
 <body>

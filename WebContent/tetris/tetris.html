@@ -449,10 +449,11 @@ div.cube {
 		loadKeyboardControl : function() {
 			var self = this;
 			/*load keyboard*/
-			document.onkeydown = function(event) {
+			document.onkeydown = function(e) {
 				if (!self.running) {
 					return;
 				}
+				var event = e || window.event;
 				if (event.keyCode == 37) {
 					if (self.reachLeft() == false) {
 						self.move(-1, 0);
@@ -563,7 +564,10 @@ div.cube {
 			} else {
 				this.fall();
 			}
-			setTimeout(this.run.bind(this), this.speed);
+			var _self = this;
+			setTimeout(function() {
+				_self.run();
+			}, this.speed);
 		},
 
 		initNewBlock : function() {

@@ -195,10 +195,11 @@
 		
 		initKeyboard: function() {
 			var _game = this;
-			document.onkeydown = function(event) {
+			document.onkeydown = function(e) {
 				if(_game.snake.moving == false) {
 					return;
 				}
+				var event = e || window.event;
 				var val = '';
 				switch(event.keyCode) {
 					case 37: val = 'left'; break;
