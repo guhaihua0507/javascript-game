@@ -124,10 +124,12 @@
 		this.PIX = 100;
 		
 		this.gameUI = new GameUI(id);
+		this.onFinish = null;
 		this.cells = [];
 		this.blocks = [];
-		this.moveOff = false;
-		
+		this.moveOff = true;
+
+		this.isReplaying = false;
 		this.history = [];
 		
 		this.initialize();
@@ -141,6 +143,10 @@
 			this.setupControl();
 		},
 		
+		start: function() {
+			this.moveOff = false;
+		},
+		
 		initCells: function() {
 			for (var i = 0; i < this.HEIGHT; i++) {
 				this.cells[i] = [];
@@ -152,13 +158,13 @@
 		
 		initBlocks: function() {
 			this.blocks.length = 0;
-			this.blocks.push(new Block(2, 2, 1, 0, this));		//cao cao
+			this.blocks.push(new Block(2, 2, 1, 2, this));		//cao cao
 			this.blocks.push(new Block(1, 2, 0, 0, this));
 			this.blocks.push(new Block(1, 2, 3, 0, this));
 			this.blocks.push(new Block(1, 2, 0, 2, this));
-			this.blocks.push(new Block(2, 1, 1, 2, this));
-			this.blocks.push(new Block(1, 1, 1, 3, this));
-			this.blocks.push(new Block(1, 1, 2, 3, this));
+			this.blocks.push(new Block(2, 1, 1, 0, this));
+			this.blocks.push(new Block(1, 1, 1, 1, this));
+			this.blocks.push(new Block(1, 1, 2, 1, this));
 			this.blocks.push(new Block(1, 2, 3, 2, this));
 			this.blocks.push(new Block(1, 1, 0, 4, this));
 			this.blocks.push(new Block(1, 1, 3, 4, this));
@@ -173,11 +179,27 @@
 			this.showBlocks();
 		},
 		
+		checkFinish: function() {
+			var keyBlock = this.blocks[0];
+			if (keyBlock.x == 1 && keyBlock.y == 3) {
+				if (this.onFinish) {
+					this.onFinish.call();
+				}
+				this.moveOff = true;
+			}
+		},
+		
+		onMoveStep: function(block, tox, toy) {
+			this.logMove(block, tox, toy);
+			this.checkFinish();
+		},
+		
 		replay: function() {
 			if (this.history.length == 0) {
 				return;
 			}
 			this.moveOff = true;
+			this.isReplaying = true;
 			this.resetBlocks();
 			var self = this;
 			setTimeout(function() {
@@ -186,11 +208,11 @@
 		},
 		
 		replayMove: function(index) {
-			if (index >= this.history.length) {
+			if (index >= this.history.length || !this.isReplaying) {
+				this.isReplaying = false;
 				return;
 			}
 			var mov = this.history[index];
-			debug('move block ' + mov.index + ' to ' + mov.to.x + "/" + mov.to.y);
 			this.moveTo(this.blocks[mov.index], mov.to.x, mov.to.y);
 			var self = this;
 			setTimeout(function() {
@@ -420,8 +442,7 @@
 				var tox = block.x + moveX;
 				var toy = block.y + moveY;
 				this.moveTo(block, tox, toy);
-				//log move
-				this.logMove(block, tox, toy);	
+				this.onMoveStep(block, tox, toy);
 			} else {
 				this.showBlock(block);
 			}
@@ -456,11 +477,11 @@
 	var game = null;
 	window.onload = function() {
 		game = new Game('main');
-	}
-	
-	function replay() {
-		alert('replay');
-		game.replay();
+		game.onFinish = function() {
+			alert('finish! replay!');
+			game.replay();
+		}
+		game.start();
 	}
 	
 	function debug(msg) {
@@ -472,6 +493,5 @@
 <body>
 	<div id="main" class="mainboard"></div>
 	<div id='console' class="console"></div>
-	<input type="button" name='replay' value='replay' onclick='replay()'>
 </body>
 </html>
