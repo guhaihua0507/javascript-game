@@ -9,31 +9,42 @@
 	height: 700px;
 	width: 570px;
 	border: 1px solid blue;
+	background-color: #D9E2EA;
 	margin-left: auto;
 	margin-right: auto;
+	margin-left: auto;
 }
+
 .app {
 	position: relative;
 	float: left;
 	height: 132px;
 	width: 100px;
-	border: 1px solid blue;
+	background-color: #CCC;
+	border-left: 2px solid white;
+	border-right: 2px solid black;
+	border-top: 2px solid white;
+	border-bottom: 2px solid black;
 	margin-left: 10px;
 	margin-top: 10px;
+	border-left: 2px solid white;
 }
+
 .app:hover {
 	background-color: #EEEEEE;
+	cursor: pointer;
 }
+
 .icon {
 	position: relative;
- 	margin-left: auto;
+	margin-left: auto;
 	margin-right: auto;
 	overflow: hidden;
 	height: 90px;
 	width: 90px;
-	cursor: pointer;
 	text-align: center;
 }
+
 .label {
 	position: relative;
 	height: 30px;
@@ -42,43 +53,41 @@
 	margin-right: auto;
 	text-align: center;
 	overflow: hidden;
+	color: blue;
 }
 </style>
+<script type="text/javascript">
+	function openGame(url) {
+		window.open(url);
+	}
+</script>
 </head>
 <body>
-<div class="panel">
-	<div class="app">
-		<div class="icon">
-			<a href='snake/snake.html' target="_blank">
+	<div class="panel">
+		<div class="app" onclick='javascript:openGame("snake/snake.html")'>
+			<div class="icon">
 				<img alt="snake" src="icon/icon_snake.jpg" border="0">
-			</a>
+			</div>
+			<div class="label">snake</div>
 		</div>
-		<div class="label"><a href='snake/snake.html' target="_blank">snake</a></div>
-	</div>
-	<div class="app">
-		<div class="icon">
-			<a href='tetris/tetris.html' target="_blank">
+		<div class="app" onclick='javascript:openGame("tetris/tetris.html")'>
+			<div class="icon">
 				<img alt="tetris" src="icon/icon_tetris.jpg" border="0">
-			</a>
+			</div>
+			<div class="label">tetris</div>
 		</div>
-		<div class="label"><a href='tetris/tetris.html' target="_blank">tetris</a></div>
-	</div>
-	<div class="app">
-		<div class="icon">
-			<a href='puzzle/puzzle.html' target="_blank">
+		<div class="app" onclick='javascript:openGame("puzzle/puzzle.html")'>
+			<div class="icon">
 				<img alt="puzzle" src="icon/icon_puzzle.jpg" border="0">
-			</a>
+			</div>
+			<div class="label">puzzle</div>
 		</div>
-		<div class="label"><a href='puzzle/puzzle.html' target="_blank">puzzle</a></div>
-	</div>
-	<div class="app">
-		<div class="icon">
-			<a href='lobby' target="_blank">
+		<div class="app" onclick='javascript:openGame("lobby")'>
+			<div class="icon">
 				<img alt="gobang" src="icon/icon_gobang.jpg" border="0">
-			</a>
+			</div>
+			<div class="label">gobang</div>
 		</div>
-		<div class="label"><a href='lobby' target="_blank">gobang</a></div>
 	</div>
-</div>
 </body>
 </html>
