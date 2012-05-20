@@ -1,3 +1,16 @@
+window.debugConsole = null;
+var debug = function(msg) {
+	if (!debugConsole) {
+		return;
+	}
+	if (typeof debugConsole == 'string') {
+		debugConsole = document.getElementById(debugConsole);
+	}
+	if (debugConsole) {
+		debugConsole.innerHTML = debugConsole.innerHTML + "<br>" + msg;
+	}
+};
+
 var GameUI = function(id) {
 	this.ui = document.getElementById(id);
 	this.width = null;
@@ -119,6 +132,18 @@ Game.prototype = {
 		this.moveOff = false;
 	},
 
+	restart: function() {
+		this.resetGame();
+		this.start();
+	},
+
+	resetGame: function() {
+		this.resetBlocks();
+		this.moveOff = true;
+		this.history = [];
+		this.stepNo = 0;
+	},
+	
 	initCells : function() {
 		for ( var i = 0; i < this.HEIGHT; i++) {
 			this.cells[i] = [];
@@ -159,8 +184,8 @@ Game.prototype = {
 		for ( var i = 0; i < this.blocks.length; i++) {
 			this.removeBlock(this.blocks[i]);
 		}
-		this.initBlocks();
 		this.initCells();
+		this.initBlocks();
 		this.showBlocks();
 	},
 
@@ -168,7 +193,7 @@ Game.prototype = {
 		var keyBlock = this.blocks[0];
 		if (keyBlock.x == 1 && keyBlock.y == 3) {
 			if (this.onFinish) {
-				this.onFinish.call();
+				this.onFinish.call(this, this);
 			}
 			this.moveOff = true;
 		}
@@ -199,6 +224,9 @@ Game.prototype = {
 	replayMove : function(index) {
 		if (index >= this.history.length || !this.isReplaying) {
 			this.isReplaying = false;
+			if (this.onFinish) {
+				this.onFinish.call(this, this);
+			}
 			return;
 		}
 		var mov = this.history[index];

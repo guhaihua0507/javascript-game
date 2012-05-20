@@ -3,25 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <title>Hua rong dao</title>
+<link href="css/hrd.css" rel="stylesheet" type="text/css">
 <link href="css/css.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="js/hrd.js"></script>
+<script type="text/javascript" src="js/popup.js"></script>
 <script type="text/javascript">
-	window.onload = function() {
-		var game = new Game('main');
-		game.onFinish = function() {
-			alert('finish! replay!');
-			game.replay();
-		};
-		game.onMoveBlock = function(g) {
-			//debug(g.stepNo);
-		};
-		game.start();
-	}
+	(function() {
+		debugConsole = 'console';
+	})();
 	
-	function debug(msg) {
-		var consol = document.getElementById('console');
-		consol.innerHTML = consol.innerHTML + "<br>" + msg;
-	} 
+	window.onload = function() {
+		var game = new Game('main', {
+			onFinish : function(g) {
+				var dialog = Popup.newDialog('Congratulation!');
+				dialog.addButton({
+					value: '再来一次',
+					action: function() {
+						g.restart();
+					}
+				});
+				dialog.addButton({
+					value: '回放',
+					action: function() {
+						g.replay();
+					}
+				});
+				dialog.show();
+			},
+
+			onMoveBlock : function(g) {
+				//alert(g.stepNo);
+			},
+			
+			blockLayout: function(g) {
+				this.addBlock(new Block(2, 2, 1, 2, this)).setImg('chr/caocao.jpg'); // caocao
+				this.addBlock(new Block(1, 2, 0, 0, this)).setImg('chr/huangzhong.jpg');
+				this.addBlock(new Block(1, 2, 3, 0, this)).setImg('chr/machao.jpg');
+				this.addBlock(new Block(1, 2, 0, 2, this)).setImg('chr/zhaoyun.jpg');
+				this.addBlock(new Block(2, 1, 1, 0, this)).setImg('chr/guanyu.jpg');
+				this.addBlock(new Block(1, 1, 1, 1, this)).setImg('chr/bing.jpg');
+				this.addBlock(new Block(1, 1, 2, 1, this)).setImg('chr/bing.jpg');
+				this.addBlock(new Block(1, 2, 3, 2, this)).setImg('chr/zhangfei.jpg');
+				this.addBlock(new Block(1, 1, 0, 4, this)).setImg('chr/bing.jpg');
+				this.addBlock(new Block(1, 1, 3, 4, this)).setImg('chr/bing.jpg');
+			}
+		});
+		game.start();
+		window.debug('start...');
+	};
 </script>
 </head>
 <body>
