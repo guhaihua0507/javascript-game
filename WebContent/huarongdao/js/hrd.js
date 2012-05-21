@@ -132,18 +132,18 @@ Game.prototype = {
 		this.moveOff = false;
 	},
 
-	restart: function() {
+	restart : function() {
 		this.resetGame();
 		this.start();
 	},
 
-	resetGame: function() {
+	resetGame : function() {
 		this.resetBlocks();
 		this.moveOff = true;
 		this.history = [];
 		this.stepNo = 0;
 	},
-	
+
 	initCells : function() {
 		for ( var i = 0; i < this.HEIGHT; i++) {
 			this.cells[i] = [];
