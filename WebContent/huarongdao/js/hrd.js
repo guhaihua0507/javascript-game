@@ -412,7 +412,7 @@ Game.prototype = {
 	},
 
 	blockOnMoving : function(block, e) {
-		var ATTRICT_VALVE = 20;
+		var ATTRICT_VALVE = 10;
 		var uiElement = block.ui;
 		var offsetMouseX = e.clientX - uiElement.mousePos.x;
 		var offsetMouseY = e.clientY - uiElement.mousePos.y;
@@ -434,6 +434,9 @@ Game.prototype = {
 			dir.dy = 1;
 		}
 
+		/*
+		 * decide which direction to go
+		 */
 		var route = uiElement.route;
 		var offsetX = 0;
 		var offsetY = 0;
@@ -456,6 +459,9 @@ Game.prototype = {
 			offsetX = 0;
 		}
 
+		/*
+		 * decide to offset value and move
+		 */
 		if (offsetX != 0) {
 			if (Math.abs(offsetX) <= ATTRICT_VALVE) {
 				offsetX = 0;
