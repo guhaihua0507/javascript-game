@@ -91,7 +91,6 @@ Block.prototype = {
 };
 
 var Game = function(id, ctx) {
-	this.ATTRICT_VALVE = 10;
 	this.WIDTH = 4;
 	this.HEIGHT = 5;
 	this.PIX = 100;
@@ -413,6 +412,7 @@ Game.prototype = {
 	},
 
 	blockOnMoving : function(block, e) {
+		var ATTRICT_VALVE = 20;
 		var uiElement = block.ui;
 		var offsetMouseX = e.clientX - uiElement.mousePos.x;
 		var offsetMouseY = e.clientY - uiElement.mousePos.y;
@@ -457,17 +457,17 @@ Game.prototype = {
 		}
 
 		if (offsetX != 0) {
-			if (Math.abs(offsetX) <= this.ATTRICT_VALVE) {
+			if (Math.abs(offsetX) <= ATTRICT_VALVE) {
 				offsetX = 0;
-			} else if (this.PIX - Math.abs(offsetX) <= this.ATTRICT_VALVE) {
+			} else if (this.PIX - Math.abs(offsetX) <= ATTRICT_VALVE) {
 				offsetX = offsetX > 0 ? this.PIX : 0 - this.PIX;
 			}
 			uiElement.style.left = uiElement.startPos.x + offsetX + 'px';
 		}
 		if (offsetY != 0) {
-			if (Math.abs(offsetY) <= this.ATTRICT_VALVE) {
+			if (Math.abs(offsetY) <= ATTRICT_VALVE) {
 				offsetY = 0;
-			} else if (this.PIX - Math.abs(offsetY) <= this.ATTRICT_VALVE) {
+			} else if (this.PIX - Math.abs(offsetY) <= ATTRICT_VALVE) {
 				offsetY = offsetY > 0 ? this.PIX : 0 - this.PIX;
 			}
 			uiElement.style.top = uiElement.startPos.y + offsetY + 'px';
