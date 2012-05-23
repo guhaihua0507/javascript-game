@@ -124,6 +124,7 @@ var Game = function(id, ctx) {
 	this.stepNo = 0;
 
 	this.onFinish = null;
+	this.onReplayFinish = null;
 	this.onMoveBlock = null;
 
 	this.loadContext(ctx);
@@ -242,8 +243,8 @@ Game.prototype = {
 	replayMove : function(index) {
 		if (index >= this.history.length || !this.isReplaying) {
 			this.isReplaying = false;
-			if (this.onFinish) {
-				this.onFinish.call(this, this);
+			if (this.onReplayFinish) {
+				this.onReplayFinish.call(this, this);
 			}
 			return;
 		}
@@ -573,6 +574,6 @@ Game.prototype = {
 		} else if (document.attachEvent) { // IE7, IE8, IE9
 			document.attachEvent('on' + e, call);
 		}
-	},
+	}
 	
 };

@@ -13,35 +13,52 @@
 	})();
 	
 	window.onload = function() {
+		var stepNoObj = document.getElementById('stepNo');
+		var replayButton = document.getElementById('btn_replay');
+		var restartButton = document.getElementById('btn_restart');
 		var game = new Game('main', {
 			onFinish : function(g) {
-				var dialog = Popup.newDialog('Congratulation!');
-				dialog.addButton({
-					value: '再来一次',
-					action: function() {
-						g.restart();
-					}
-				});
-				dialog.addButton({
-					value: '回放',
-					action: function() {
-						g.replay();
-					}
-				});
+				var dialog = Popup.newDialog('恭喜你，通关啦!');
 				dialog.show();
+				replayButton.disabled = false;
 			},
 
 			onMoveBlock : function(g) {
-				//alert(g.stepNo);
+				stepNoObj.innerHTML = g.stepNo;
 			}
 		});
+		
+		replayButton.onclick = function() {
+			game.replay();
+		}
+		
+		restartButton.onclick = function() {
+			stepNoObj.innerHTML = 0;
+			replayButton.disabled = true;
+			game.restart();
+		}
+		
 		game.start();
-		window.debug('start...');
+		replayButton.disabled = true;
 	};
 </script>
 </head>
 <body>
-	<div id="main" class="mainboard"></div>
+	<div class='gameborder'>
+		<div id="main" class="mainboard"></div>
+		<div class='bottom'>
+			<table class='bottom_table'>
+				<tr>
+					<td class='cell_name'><span id='gameName'>华容道</span></td>
+					<td class='cell_step'><span id='stepNo'>0</span></td>
+					<td class='cell_buttons'>
+						<input type="button" id='btn_replay' value='回放'>
+						<input type="button" id='btn_restart' value='重来'>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 	<!-- <div id='console' class="console"></div> -->
 </body>
 </html>
