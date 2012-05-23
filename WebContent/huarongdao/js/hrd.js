@@ -95,10 +95,10 @@ Block.prototype = {
 	},
 
 	setUIPosition : function(x, y) {
-		if (x) {
+		if (x != null && x != undefined) {
 			this.ui.style.left = x + 'px';
 		}
-		if (y) {
+		if (y != null && y != undefined) {
 			this.ui.style.top = y + 'px';
 		}
 	},
