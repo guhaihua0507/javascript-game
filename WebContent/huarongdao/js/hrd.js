@@ -85,6 +85,24 @@ Block.prototype = {
 		this.refresh();
 	},
 
+	getUIPosition : function() {
+		var x = this.ui.offsetLeft;
+		var y = this.ui.offsetTop;
+		return {
+			x : x,
+			y : y
+		};
+	},
+
+	setUIPosition : function(x, y) {
+		if (x) {
+			this.ui.style.left = x + 'px';
+		}
+		if (y) {
+			this.ui.style.top = y + 'px';
+		}
+	},
+
 	setImg : function(img) {
 		this.ui.style.backgroundImage = 'url(' + img + ')';
 	}
@@ -332,7 +350,7 @@ Game.prototype = {
 				return;
 			}
 			game.blockStartMoving(movingBlock, event);
-			if (uiElement.readyMoving) {
+			if (movingBlock.temp && movingBlock.temp.readyMoving) {
 				game.capturedBlock = movingBlock;
 				if (uiElement.setCapture) {
 					uiElement.setCapture();
@@ -350,11 +368,12 @@ Game.prototype = {
 			if (!game.capturedBlock) {
 				return;
 			}
-			if (!game.capturedBlock.ui.readyMoving) {
+			var movingBlock = game.capturedBlock;
+			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
 				return;
 			}
 			var event = e || window.event;
-			game.blockOnMoving(game.capturedBlock, event);
+			game.blockOnMoving(movingBlock, event);
 			if (event.preventDefault) {
 				event.preventDefault();
 			}
@@ -368,7 +387,7 @@ Game.prototype = {
 			if (!movingBlock) {
 				return;
 			}
-			if (!movingBlock.ui.readyMoving) {
+			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
 				return;
 			}
 			var event = e || window.event;
@@ -376,7 +395,7 @@ Game.prototype = {
 			if (movingBlock.ui.releaseCapture) {
 				movingBlock.ui.releaseCapture();
 			}
-			movingBlock.ui.readyMoving = false;
+			movingBlock.temp = undefined;
 			game.capturedBlock = null;
 			if (event.preventDefault) {
 				event.preventDefault();
@@ -384,45 +403,34 @@ Game.prototype = {
 		});
 	},
 
-	addEventListener : function(e, call) {
-		if (window.addEventListener) { // chrome, firefox
-			window.addEventListener(e, call);
-		} else if (document.attachEvent) { // IE7, IE8, IE9
-			document.attachEvent('on' + e, call);
-		}
-	},
-
 	blockStartMoving : function(block, e) {
-		var uiElement = block.ui;
+		block.temp = new Object();
 		var route = this.getMovableRoute(block);
 		if (route.length > 0) {
-			uiElement.route = route;
-			uiElement.startPos = {
-				x : uiElement.offsetLeft,
-				y : uiElement.offsetTop
-			};
-			uiElement.mousePos = {
+			block.temp.route = route;
+			block.temp.startPos = block.getUIPosition();
+			block.temp.mousePos = {
 				x : e.clientX,
 				y : e.clientY
 			};
-			uiElement.readyMoving = true;
+			block.temp.readyMoving = true;
 		} else {
-			uiElement.readyMoving = false;
+			block.temp.readyMoving = false;
 		}
 	},
 
 	blockOnMoving : function(block, e) {
 		var ATTRICT_VALVE = 10;
-		var uiElement = block.ui;
-		var offsetMouseX = e.clientX - uiElement.mousePos.x;
-		var offsetMouseY = e.clientY - uiElement.mousePos.y;
+		var offsetMouseX = e.clientX - block.temp.mousePos.x;
+		var offsetMouseY = e.clientY - block.temp.mousePos.y;
 
 		var dir = {
 			dx : 0,
 			dy : 0
 		};
-		var offsetBlockLeft = uiElement.offsetLeft - uiElement.startPos.x;
-		var offsetBlockTop = uiElement.offsetTop - uiElement.startPos.y;
+		var blockPos = block.getUIPosition();
+		var offsetBlockLeft = blockPos.x - block.temp.startPos.x;
+		var offsetBlockTop = blockPos.y - block.temp.startPos.y;
 		if (offsetBlockLeft < 0) {
 			dir.dx = -1;
 		} else if (offsetBlockLeft > 0) {
@@ -437,7 +445,7 @@ Game.prototype = {
 		/*
 		 * decide which direction to go
 		 */
-		var route = uiElement.route;
+		var route = block.temp.route;
 		var offsetX = 0;
 		var offsetY = 0;
 		for ( var i = 0; i < route.length; i++) {
@@ -468,7 +476,7 @@ Game.prototype = {
 			} else if (this.PIX - Math.abs(offsetX) <= ATTRICT_VALVE) {
 				offsetX = offsetX > 0 ? this.PIX : 0 - this.PIX;
 			}
-			uiElement.style.left = uiElement.startPos.x + offsetX + 'px';
+			block.setUIPosition(block.temp.startPos.x + offsetX, null);
 		}
 		if (offsetY != 0) {
 			if (Math.abs(offsetY) <= ATTRICT_VALVE) {
@@ -476,14 +484,14 @@ Game.prototype = {
 			} else if (this.PIX - Math.abs(offsetY) <= ATTRICT_VALVE) {
 				offsetY = offsetY > 0 ? this.PIX : 0 - this.PIX;
 			}
-			uiElement.style.top = uiElement.startPos.y + offsetY + 'px';
+			block.setUIPosition(null, block.temp.startPos.y + offsetY);
 		}
 	},
 
 	blockEndMoving : function(block, e) {
-		var uiElement = block.ui;
-		var offsetStartX = uiElement.offsetLeft - uiElement.startPos.x;
-		var offsetStartY = uiElement.offsetTop - uiElement.startPos.y;
+		var blockPos = block.getUIPosition();
+		var offsetStartX = blockPos.x - block.temp.startPos.x;
+		var offsetStartY = blockPos.y - block.temp.startPos.y;
 		var moveX = 0;
 		var moveY = 0;
 		if (Math.abs(offsetStartX) >= this.PIX / 2) {
@@ -509,8 +517,6 @@ Game.prototype = {
 		} else {
 			this.showBlock(block);
 		}
-		uiElement.mousePos = undefined;
-		uiElement.startPos = undefined;
 	},
 
 	getMovableRoute : function(block) {
@@ -559,5 +565,14 @@ Game.prototype = {
 				}
 			});
 		}
-	}
+	},
+	
+	addEventListener : function(e, call) {
+		if (window.addEventListener) { // chrome, firefox
+			window.addEventListener(e, call);
+		} else if (document.attachEvent) { // IE7, IE8, IE9
+			document.attachEvent('on' + e, call);
+		}
+	},
+	
 };
