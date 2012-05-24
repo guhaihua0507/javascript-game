@@ -13,6 +13,8 @@
 }
 
 .mainboard {
+	position: relative;
+	border: 0px;
 	width: 400px;
 	height: 500px;
 	margin-left: auto;
@@ -20,6 +22,7 @@
 }
 
 .bottom {
+	position: relative;
 	width: 400px;
 	height: 40px;
 	border-top: 3px solid #777777;
