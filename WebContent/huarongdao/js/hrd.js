@@ -1,16 +1,3 @@
-window.debugConsole = null;
-var debug = function(msg) {
-	if (!debugConsole) {
-		return;
-	}
-	if (typeof debugConsole == 'string') {
-		debugConsole = document.getElementById(debugConsole);
-	}
-	if (debugConsole) {
-		debugConsole.innerHTML = debugConsole.innerHTML + "<br>" + msg;
-	}
-};
-
 var GameUI = function(id) {
 	this.ui = document.getElementById(id);
 	this.width = null;
