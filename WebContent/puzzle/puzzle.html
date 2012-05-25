@@ -77,6 +77,7 @@
 				step.y = offsetY > 0 ? this.movPix : 0 - this.movPix;
 				if (offsetX != 0) {
 					var v = parseInt(Math.abs(offsetY) / Math.abs(offsetX), 10) * this.movPix;
+					step.x = offsetX > 0 ? v : 0 - v;
 				}
 			}
 			this.moveStep(obj, tox, toy, step, callback);
