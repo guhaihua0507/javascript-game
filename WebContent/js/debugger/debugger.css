@@ -1,8 +1,0 @@
-.debug_console {
-	position: fixed;
-	width: 98%;
-	height: 150px;
-	overflow: scroll;
-	border: 1px solid black;
-	bottom: 0px;
-}
