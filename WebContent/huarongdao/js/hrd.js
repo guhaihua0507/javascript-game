@@ -124,6 +124,9 @@ Game.prototype = {
 		this.initBlocks();
 		this.showBlocks();
 		this.setupControl();
+		if (navigator.userAgent.indexOf('Mobile') > -1) {
+			this.setupTouchControl();
+		}
 	},
 
 	loadContext : function(ctx) {
@@ -378,7 +381,7 @@ Game.prototype = {
 			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
 				return;
 			}
-			var event = e || window.event;
+			var event = e.targetTouches[0];
 			game.blockEndMoving(movingBlock, event);
 			if (movingBlock.ui.releaseCapture) {
 				movingBlock.ui.releaseCapture();
@@ -391,6 +394,66 @@ Game.prototype = {
 		});
 	},
 
+	setupTouchControl : function() {
+		var game = this;
+		this.addEventListener('touchstart', function(e) {
+			if (game.moveOff) {
+				return;
+			}
+			var event = e.targetTouches[0];
+			var uiElement = event.srcElement || event.target;
+			var movingBlock = uiElement.blockObj;
+			if (!movingBlock) {
+				return;
+			}
+			e.preventDefault();
+			game.blockStartMoving(movingBlock, event);
+			if (movingBlock.temp && movingBlock.temp.readyMoving) {
+				game.capturedBlock = movingBlock;
+				if (uiElement.setCapture) {
+					uiElement.setCapture();
+				}
+			}
+		});
+
+		this.addEventListener('touchmove', function(e) {
+			if (game.moveOff) {
+				return;
+			}
+			if (!game.capturedBlock) {
+				return;
+			}
+			var movingBlock = game.capturedBlock;
+			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
+				return;
+			}
+			e.preventDefault();
+			var event = e.targetTouches[0];
+			game.blockOnMoving(movingBlock, event);
+		});
+
+		this.addEventListener('touchend', function(e) {
+			if (game.moveOff) {
+				return;
+			}
+			var movingBlock = game.capturedBlock;
+			if (!movingBlock) {
+				return;
+			}
+			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
+				return;
+			}
+			e.preventDefault();
+			var event = e || window.event;
+			game.blockEndMoving(movingBlock, event);
+			if (movingBlock.ui.releaseCapture) {
+				movingBlock.ui.releaseCapture();
+			}
+			movingBlock.temp = undefined;
+			game.capturedBlock = null;
+		});
+	},
+	
 	blockStartMoving : function(block, e) {
 		block.temp = new Object();
 		var route = this.getMovableRoute(block);
