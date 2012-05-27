@@ -381,7 +381,7 @@ Game.prototype = {
 			if (!movingBlock.temp || !movingBlock.temp.readyMoving) {
 				return;
 			}
-			var event = e.targetTouches[0];
+			var event = e || window.event;
 			game.blockEndMoving(movingBlock, event);
 			if (movingBlock.ui.releaseCapture) {
 				movingBlock.ui.releaseCapture();
@@ -410,9 +410,6 @@ Game.prototype = {
 			game.blockStartMoving(movingBlock, event);
 			if (movingBlock.temp && movingBlock.temp.readyMoving) {
 				game.capturedBlock = movingBlock;
-				if (uiElement.setCapture) {
-					uiElement.setCapture();
-				}
 			}
 		});
 
@@ -444,11 +441,8 @@ Game.prototype = {
 				return;
 			}
 			e.preventDefault();
-			var event = e || window.event;
+			var event = e.targetTouches[0];
 			game.blockEndMoving(movingBlock, event);
-			if (movingBlock.ui.releaseCapture) {
-				movingBlock.ui.releaseCapture();
-			}
 			movingBlock.temp = undefined;
 			game.capturedBlock = null;
 		});
