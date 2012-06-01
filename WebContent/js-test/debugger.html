@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="debugger.js"></script>
+<script type="text/javascript" src="jQuery/jquery-1.7.1.js"></script>
+<link href="debugger.css" rel="stylesheet" type="text/css">
+</head>
+<script type="text/javascript">
+	(function() {
+		Debugger.initDebugger();
+	})();
+	
+	window.onload = function() {
+		Debugger.debug('shit');
+		Debugger.debug('shit2');
+		$(window).height();
+	}
+	$(document).scroll(function(){
+        //var isFoot = ($(window).scrollTop() + $(window).height()) == $(document).height() ? alert("The window is Footer"):'';
+        if (($(window).scrollTop() + $(window).height()) == $(document).height()) {	//at the bottom
+        	$('#bottomdiv').html('loding');
+        } else {
+        	$('#bottomdiv').html('');
+        }
+    })
+</script>
+<body>
+<!-- <div style='position:static; height:900px; border:1px solid black;'></div> -->
+<p id='textarea'>hello,</p>
+<div style="height: 900px;"></div>
+<div id='bottomdiv' style="position: relative;height: 20px; width: 100%; border: 1px solid black;"></div>
+</body>
+</html>

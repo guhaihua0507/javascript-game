@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Js test page</title>
+<script type="text/javascript" src="debugger.js"></script>
+<link href="debugger.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+.gameborder {
+	position: absolute;
+	/*margin-left: auto;
+	margin-right: auto;*/
+	left: 100px;
+	top: 100px width:  400px;
+	height: 543px;
+	border: 5px solid #777777;
+	/*shadow effect*/
+	-moz-box-shadow: 10px 10px 20px #888888;
+	-webkit-box-shadow: 10px 10px 20px #888888;
+	box-shadow: 10px 10px 20px #888888;
+}
+
+.mainboard {
+	position: relative;
+	left: 0px;
+	top: 0px;
+	width: 400px;
+	height: 500px;
+	margin-left: 0px;
+	margin-right: 0px;
+	border: 0px solid blue;
+}
+
+.block {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	left: 10px;
+	top: 10px;
+	border: 1px solid green;
+	background-color: #888;
+}
+
+.block:hover {
+	cursor: pointer;
+	background-color: #EEEEEE;
+}
+
+.console {
+	position: absolute;
+	width: 400px;
+	height: 200px;
+	top: 600px;
+	border: 1px solid #777777;
+	overflow: scroll;
+}
+</style>
+<script>
+	(function() {
+		Debugger.initDebugger();
+	})();
+
+	window.onload = function() {
+		var block = document.getElementById('block');
+		Debugger.debug('offsetLeft=' + block.offsetLeft);
+		Debugger.debug('style.left=' + block.style.left);
+		Debugger.debug('clientLeft=' + block.clientLeft);
+		var rect = block.getBoundingClientRect();
+		for ( var p in rect) {
+			Debugger.debug(p + '=' + rect[p]);
+		}
+	}
+</script>
+</head>
+<body>
+	<div class='gameborder'>
+		<div id="main" class="mainboard">
+			<div id='block' class='block'></div>
+		</div>
+	</div>
+</body>
+</html>
