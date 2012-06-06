@@ -25,7 +25,9 @@
 		});
 		
 		replayButton.onclick = function() {
-			game.replay();
+			//game.replay();
+			var playback = new PlayBack(game);
+			playback.play(game.history);
 		}
 		
 		restartButton.onclick = function() {

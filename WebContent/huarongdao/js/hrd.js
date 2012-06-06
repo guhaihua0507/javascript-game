@@ -208,9 +208,9 @@ Game.prototype = {
 		}
 	},
 
-	onMoveStep : function(block, tox, toy) {
+	onMoveStep : function(block, movX, movY) {
 		this.stepNo++;
-		this.logMoveStep(block, tox, toy);
+		this.logMoveStep(block, movX, movY);
 		if (this.onMoveBlock) {
 			this.onMoveBlock.call(this, this);
 		}
@@ -226,11 +226,11 @@ Game.prototype = {
 		this.resetBlocks();
 		var self = this;
 		setTimeout(function() {
-			self.replayMove(0);
+			self.replaySteps(0);
 		}, 1000);
 	},
 
-	replayMove : function(index) {
+	replaySteps : function(index) {
 		if (index >= this.history.length || !this.isReplaying) {
 			this.isReplaying = false;
 			if (this.onReplayFinish) {
@@ -239,7 +239,11 @@ Game.prototype = {
 			return;
 		}
 		var mov = this.history[index];
-		this.moveTo(this.blocks[mov.index], mov.to.x, mov.to.y);
+		var movBlock = this.blocks[mov.index];
+		var toX = movBlock.x + mov.offsetX;
+		var toY = movBlock.y + mov.offsetY;
+		this.moveTo(movBlock, toX, toY);
+		
 		var self = this;
 		setTimeout(function() {
 			self.replayMove(++index);
@@ -558,7 +562,7 @@ Game.prototype = {
 			var tox = block.x + moveX;
 			var toy = block.y + moveY;
 			this.moveTo(block, tox, toy);
-			this.onMoveStep(block, tox, toy);
+			this.onMoveStep(block, moveX, moveY);
 		} else {
 			this.showBlock(block);
 		}
@@ -593,7 +597,7 @@ Game.prototype = {
 		return route;
 	},
 
-	logMoveStep : function(block, tox, toy) {
+	logMoveStep : function(block, movX, movY) {
 		var blockIndex = null;
 		for ( var i = 0; i < this.blocks.length; i++) {
 			if (block == this.blocks[i]) {
@@ -604,10 +608,8 @@ Game.prototype = {
 		if (blockIndex != null) {
 			this.history.push({
 				index : blockIndex,
-				to : {
-					x : tox,
-					y : toy
-				}
+				offsetX : movX,
+				offsetY : movY
 			});
 		}
 	},
@@ -619,5 +621,47 @@ Game.prototype = {
 			document.attachEvent('on' + e, call);
 		}
 	}
+};
+
+var PlayBack = function(game) {
+	this.game = game;
+	this.running = false;
+}
+PlayBack.prototype = {
+	play : function(steps, callback) {
+		if (running) {
+			return;
+		}
+		if (steps == null || steps.length == 0) {
+			return;
+		}
+		if (this.game.moveOff == false) {	//cant run playback while game is running
+			return;
+		}
+		this.running = true;
+		this.game.resetBlocks();
+		var self = this;
+		setTimeout(function() {
+			self.runStep(steps, 0, callback);
+		}, 1000);
+	},
 	
+	runStep : function(steps, index, callback) {
+		if (index >= steps.length || !this.running) {
+			if (callback) {
+				callback.call(this, this);
+			}
+			return;
+		}
+		var mov = steps[index];
+		var movBlock = this.game.blocks[mov.index];
+		var toX = movBlock.x + mov.offsetX;
+		var toY = movBlock.y + mov.offsetY;
+		this.moveTo(movBlock, toX, toY);
+		
+		var self = this;
+		setTimeout(function() {
+			self.runStep(steps, ++index, callback);
+		}, 1000);
+	}
 };
