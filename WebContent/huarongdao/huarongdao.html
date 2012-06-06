@@ -27,23 +27,31 @@
 			}
 		});
 		
-		var playback = new PlayBack(game);
+		var playback = null;
 
 		btn_playback.onclick = function() {
-			playback.stop();
+			if (playback) {
+				playback.stop();
+			}
+			playback = new PlayBack(game);
 			playback.play(game.history);
 		}
 
 		btn_restart.onclick = function() {
-			playback.stop();
+			if (playback) {
+				playback.stop();
+			}
 			stepNoObj.innerHTML = 0;
 			btn_playback.disabled = true;
 			game.restart();
 		}
 		
 		btn_demo.onclick = function() {
+			if (playback) {
+				playback.stop();
+			}
 			game.stop();
-			playback.stop();
+			playback = new PlayBack(game);
 			playback.play(Routes.level1);
 		}
 
