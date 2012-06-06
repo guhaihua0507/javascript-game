@@ -6,17 +6,25 @@
 <link href="css/hrd.css" rel="stylesheet" type="text/css">
 <link href="css/css.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="js/hrd.js"></script>
+<script type="text/javascript" src="js/hrd_route.js"></script>
 <script type="text/javascript" src="js/popup.js"></script>
+<script type="text/javascript" src="../js/debugger/debugger.js"></script>
 <script type="text/javascript">
+	(function() {
+		Debugger.initDebugger();
+	})();
+
 	window.onload = function() {
 		var stepNoObj = document.getElementById('stepNo');
-		var replayButton = document.getElementById('btn_replay');
-		var restartButton = document.getElementById('btn_restart');
+		var btn_playback = document.getElementById('btn_replay');
+		var btn_restart = document.getElementById('btn_restart');
+		var btn_demo = document.getElementById('btn_demo');
+		
 		var game = new Game('main', {
 			onFinish : function(g) {
 				var dialog = Popup.newDialog('恭喜你，通关啦!');
 				dialog.show();
-				replayButton.disabled = false;
+				btn_playback.disabled = false;
 			},
 
 			onMoveBlock : function(g) {
@@ -24,20 +32,28 @@
 			}
 		});
 		
-		replayButton.onclick = function() {
-			//game.replay();
-			var playback = new PlayBack(game);
+		var playback = new PlayBack(game);
+
+		btn_playback.onclick = function() {
+			playback.stop();
 			playback.play(game.history);
 		}
-		
-		restartButton.onclick = function() {
+
+		btn_restart.onclick = function() {
+			playback.stop();
 			stepNoObj.innerHTML = 0;
-			replayButton.disabled = true;
+			btn_playback.disabled = true;
 			game.restart();
 		}
 		
+		btn_demo.onclick = function() {
+			game.stop();
+			playback.stop();
+			playback.play(Routes.level1);
+		}
+
 		game.start();
-		replayButton.disabled = true;
+		btn_playback.disabled = true;
 	};
 </script>
 </head>
@@ -50,8 +66,9 @@
 					<td class='cell_name'><span id='gameName'>华容道</span></td>
 					<td class='cell_step'><span id='stepNo'>0</span></td>
 					<td class='cell_buttons'>
-						<input type="button" id='btn_replay' value='回放'>
-						<input type="button" id='btn_restart' value='重来'>
+					<input type="button" id='btn_replay' value='回放'>
+					<input type="button" id='btn_restart' value='重来'>
+					<input type='button' id='btn_demo' value='演示'>
 					</td>
 				</tr>
 			</table>

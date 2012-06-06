@@ -106,12 +106,10 @@ var Game = function(id, ctx) {
 	this.blocks = [];
 	this.moveOff = true;
 
-	this.isReplaying = false;
 	this.history = [];
 	this.stepNo = 0;
 
 	this.onFinish = null;
-	this.onReplayFinish = null;
 	this.onMoveBlock = null;
 
 	this.loadContext(ctx);
@@ -141,6 +139,10 @@ Game.prototype = {
 		this.moveOff = false;
 	},
 
+	stop : function() {
+		this.moveOff = true;
+	},
+	
 	restart : function() {
 		this.resetGame();
 		this.start();
@@ -215,39 +217,6 @@ Game.prototype = {
 			this.onMoveBlock.call(this, this);
 		}
 		this.checkFinish();
-	},
-
-	replay : function() {
-		if (this.history.length == 0) {
-			return;
-		}
-		this.moveOff = true;
-		this.isReplaying = true;
-		this.resetBlocks();
-		var self = this;
-		setTimeout(function() {
-			self.replaySteps(0);
-		}, 1000);
-	},
-
-	replaySteps : function(index) {
-		if (index >= this.history.length || !this.isReplaying) {
-			this.isReplaying = false;
-			if (this.onReplayFinish) {
-				this.onReplayFinish.call(this, this);
-			}
-			return;
-		}
-		var mov = this.history[index];
-		var movBlock = this.blocks[mov.index];
-		var toX = movBlock.x + mov.offsetX;
-		var toY = movBlock.y + mov.offsetY;
-		this.moveTo(movBlock, toX, toY);
-		
-		var self = this;
-		setTimeout(function() {
-			self.replayMove(++index);
-		}, 1000);
 	},
 
 	showBlocks : function() {
@@ -626,10 +595,10 @@ Game.prototype = {
 var PlayBack = function(game) {
 	this.game = game;
 	this.running = false;
-}
+};
 PlayBack.prototype = {
 	play : function(steps, callback) {
-		if (running) {
+		if (this.running) {
 			return;
 		}
 		if (steps == null || steps.length == 0) {
@@ -651,17 +620,22 @@ PlayBack.prototype = {
 			if (callback) {
 				callback.call(this, this);
 			}
+			this.stop();
 			return;
 		}
 		var mov = steps[index];
 		var movBlock = this.game.blocks[mov.index];
 		var toX = movBlock.x + mov.offsetX;
 		var toY = movBlock.y + mov.offsetY;
-		this.moveTo(movBlock, toX, toY);
+		this.game.moveTo(movBlock, toX, toY);
 		
 		var self = this;
 		setTimeout(function() {
 			self.runStep(steps, ++index, callback);
 		}, 1000);
+	},
+	
+	stop : function() {
+		this.running = false;
 	}
 };
