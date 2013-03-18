@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Proposal</title>
+<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+<style type="text/css">
+#BGIMGPanel {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 100px;
+	overflow: hidden;
+	text-align: center;
+	z-index: -1;
+}
+
+#WordPanel {
+	position: relative;
+	width: 400px;
+	height: 300px;
+	overflow: visible;
+	margin-left: 30%;
+	margin-right: auto;
+	margin-top: 200px;
+}
+
+div div nobr {
+	font-size: 4em;
+	color: yellow;
+	font-style: italic;
+}
+</style>
+<script type="text/javascript">
+	var BGIMG = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg'];
+	var WORDS = ["你你你你你你你你你你你你你你你你", "我", "好", "世界", "我们", "哈哈", "love"];
+	
+	function changeBackground(index) {
+		$('#BGIMGPanel').fadeOut("slow", function() {
+			//$(this).css('background-image', "url('res/" + (BGIMG[index]) + "')");
+			var img = $('#BGIMGPanel img');
+			img.attr('src', 'res/' + BGIMG[index]);
+		}).fadeIn("slow", function() {
+			index = (index + 1) % BGIMG.length;
+			setTimeout(function() {
+				changeBackground(index);
+			}, 5000);
+		});
+	}
+	
+	function showWords(index) {
+		if (index >= WORDS.length) {
+			end();
+			return;
+		}
+		if (index > 3) {
+			removeTopLine();
+		}
+		var word = $('<div><nobr>' + WORDS[index] + '</nobr><br/></div>');
+		word.hide();
+		word.appendTo($('#WordPanel'));
+		word.fadeIn(3000, function() {
+			showWords(index + 1);
+		});
+	}
+	
+	function removeTopLine() {
+		$("#WordPanel div").first().remove();
+	}
+	
+	function start() {
+		changeBackground(0);
+		showWords(0);
+	}
+	
+	function end() {
+	
+	}
+	
+	$(function() {
+		start();
+	});
+</script>
+</head>
+<body>
+<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat=true playcount=true>
+<div style="position: absolute;left: 0px; top: 0px; width: 100%; height: 100%">
+	<div id="BGIMGPanel">
+		<img src="">
+	</div>
+</div>
+<div id="WordPanel" ></div>
+</body>
+</html>
