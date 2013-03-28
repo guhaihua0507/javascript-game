@@ -32,9 +32,9 @@ div div nobr {
 }
 </style>
 <script type="text/javascript">
-	var BGIMG = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg'];
-	var WORDS = ["你你你你你你你你你你你你你你你你", "我", "好", "世界", "我们", "哈哈", "love"];
-	
+	var BGIMG = [ '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg' ];
+	var WORDS = [ "你你你你你你你你你你你你你你你你", "我", "好", "世界", "我们", "哈哈", "love" ];
+
 	function changeBackground(index) {
 		$('#BGIMGPanel').fadeOut("slow", function() {
 			//$(this).css('background-image', "url('res/" + (BGIMG[index]) + "')");
@@ -47,7 +47,7 @@ div div nobr {
 			}, 5000);
 		});
 	}
-	
+
 	function showWords(index) {
 		if (index >= WORDS.length) {
 			end();
@@ -63,33 +63,33 @@ div div nobr {
 			showWords(index + 1);
 		});
 	}
-	
+
 	function removeTopLine() {
 		$("#WordPanel div").first().remove();
 	}
-	
+
 	function start() {
 		changeBackground(0);
 		showWords(0);
 	}
-	
+
 	function end() {
-	
+
 	}
-	
+
 	$(function() {
 		start();
 	});
-	
 </script>
 </head>
 <body>
-<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat=true playcount=true>
-<div style="position: absolute;left: 0px; top: 0px; width: 100%; height: 100%">
-	<div id="BGIMGPanel">
-		<img src="">
+	<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat=true playcount=true>
+	<div
+		style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%">
+		<div id="BGIMGPanel">
+			<img src="">
+		</div>
 	</div>
-</div>
-<div id="WordPanel" ></div>
+	<div id="WordPanel"></div>
 </body>
 </html>
