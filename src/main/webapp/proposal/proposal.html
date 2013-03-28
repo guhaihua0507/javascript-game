@@ -69,6 +69,8 @@ div div nobr {
 	}
 
 	function start() {
+		$("#background").show();
+		$("#WordPanel").show();
 		changeBackground(0);
 		showWords(0);
 	}
@@ -83,13 +85,12 @@ div div nobr {
 </script>
 </head>
 <body>
-	<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat=true playcount=true>
-	<div
-		style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%">
+	<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat="true" playcount="true">
+	<div id="background" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; display: none;">
 		<div id="BGIMGPanel">
 			<img src="">
 		</div>
 	</div>
-	<div id="WordPanel"></div>
+	<div id="WordPanel" style="display: none;"></div>
 </body>
 </html>
