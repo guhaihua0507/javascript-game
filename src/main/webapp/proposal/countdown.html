@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Countdown</title>
+<script type="text/javascript">
+	function calcTime() {
+		var now = new Date();
+		var d = new Date(2013, 9, 2);
+		if (d.getTime() < now.getTime()) {
+			return [ 0, 0, 0, 0 ];
+		}
+		var t = Math.floor((d.getTime() - now.getTime()) / 1000);
+		var d = Math.floor(t / (24 * 60 * 60));
+		var s = Math.floor(t % (24 * 60 * 60));
+		var h = Math.floor(s / (60 * 60));
+		s = Math.floor(s % (60 * 60));
+		var m = Math.floor(s / 60);
+		s = Math.floor(s % 60);
+		return [ d, h, m, s ];
+	}
+
+	function updateTime() {
+		var lt = calcTime();
+		var s = lt[0] + '天' + lt[1] + '小时' + lt[2] + '分' + lt[3] + '秒';
+		document.getElementById('time').innerHTML = s;
+		if (lt[0] == 0 && lt[1] == 0 && lt[2] == 0 && lt[3] == 0) {
+			return;
+		}
+		setTimeout(function() {
+			updateTime();
+		}, 1000);
+	}
+
+	window.onload = function() {
+		updateTime();
+	}
+</script>
+<style type="text/css">
+.time_panel {
+	position: relative;
+	font-size: 6em;
+	font-stretch: wider; margin-left : auto;
+	margin-right: auto;
+	margin-top: 100px;
+	text-align: center;
+	margin-left: auto;
+}
+</style>
+</head>
+<body>
+	<div id="time" class="time_panel"></div>
+</body>
+</html>

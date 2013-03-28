@@ -81,18 +81,6 @@ div div nobr {
 		start();
 	});
 	
-	function startCountdown() {
-		var now = new Date();
-		var d = new Date(2013, 9, 2);
-		var t = Math.floor((d.getTime() - now.getTime()) / 1000);
-		var d = Math.floor(t / (24 * 60 * 60));
-		var s = Math.floor(t % (24 * 60 * 60));
-		var h = Math.floor(s / (60 * 60));
-		s = Math.floor(s % (60 * 60));
-		var m = Math.floor(s / 60);
-		s = Math.floor(s % 60);
-		alert(d + '天' + h + '小时' + m + '分' + s + '秒');
-	}
 </script>
 </head>
 <body>
