@@ -87,6 +87,27 @@ div div nobr {
 
 	}
 
+	function checkMatch() {
+		var name1 = $("#name1").val();
+		var name2 = $("#name2").val();
+		if (encodeName(name1) == "987E6D77534E" && encodeName(name2) == "4EFB73894ED9") {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	function encodeName(name) {
+		if (!name) {
+			return "";
+		}
+		var code = "";
+		for (var i = 0; i < name.length; i++) {
+			var c = name.charAt(i);
+			code += c.charCodeAt().toString(16).toUpperCase();
+		}
+		return code;
+	}
 	
 	$(function() {
 		$("#match-dialog").dialog({
@@ -96,6 +117,10 @@ div div nobr {
 			draggable : false,
 			buttons : {
 				"Match" : function() {
+					if (!checkMatch()) {
+						alert("名字不匹配");
+						return;
+					}
 					$(this).dialog("close");
 					start();
 				}
