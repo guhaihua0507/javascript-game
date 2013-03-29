@@ -109,7 +109,17 @@ div div nobr {
 		return code;
 	}
 	
+	function checkTime() {
+		var deadline = new Date(2013, 3, 3);
+		var now = new Date();
+		if (now.getTime() >= deadline.getTime()) {
+			location.href = 'countdown.html';
+		}
+	}
+	
 	$(function() {
+		checkTime();
+		
 		$("#match-dialog").dialog({
 			resizable : false,
 			height : 150,
