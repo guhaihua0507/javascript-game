@@ -33,6 +33,16 @@ body {
 	margin-top: 200px;
 }
 
+#loading {
+	position: relative;
+	top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: visible;
+	font-size: 20px;
+	width: 100px;
+}
+
 div div nobr {
 	font-size: 4em;
 	color: yellow;
@@ -181,13 +191,15 @@ div div nobr {
 	$(function() {
 		checkTime();
 		ResourceLoader.loadResource(BGIMG, function() {
+			$("#loading").hide();
 			showPanel();
 		})
 	});
 </script>
 </head>
 <body>
-	<div id="match-dialog" title="Match">
+	<div id="loading">Loading...</div>
+	<div id="match-dialog" title="Match" style="display: none;">
 		<table>
 			<tr>
 				<td>他:</td>
