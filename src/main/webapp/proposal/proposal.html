@@ -84,7 +84,7 @@ div div nobr {
 	}
 
 	function end() {
-		if (confirm("你同意吗? ( 请点是哦！:-) )?")) {
+		if (confirm("你同意吗?")) {
 			location.href = 'countdown.html';
 		} else {
 			alert('选择错误:-(');
@@ -122,9 +122,36 @@ div div nobr {
 		}
 	}
 	
-	$(function() {
-		checkTime();
+	var loaded = 0;
+	function loadImage(url) {
+		var img = new Image();
+		img.src = 'res/' + url;
 		
+		if (img.complete) {
+			loaded += 1;
+			return;
+		}
+		
+		img.onload = function() {
+			loaded += 1;
+			doneLoad();
+		}
+	}
+	
+	function loadResource() {
+		for (var i = 0; i < BGIMG.length; i++) {
+			loadImage(BGIMG[i]);
+		}
+	}
+	
+	function doneLoad() {
+		if (loaded >= BGIMG.length) {
+			start();
+			return;
+		}
+	}
+	
+	function start() {
 		$("#match-dialog").dialog({
 			resizable : false,
 			height : 150,
@@ -141,6 +168,11 @@ div div nobr {
 				}
 			}
 		});
+	}
+	
+	$(function() {
+		checkTime();
+		loadResource();
 	});
 </script>
 </head>
