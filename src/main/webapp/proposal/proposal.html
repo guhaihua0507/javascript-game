@@ -9,7 +9,8 @@
 <style type="text/css">
 body {
 	font-size: 62.5%;
-	font-family: "Trebuchet MS", "Arial", "Helvetica", "Verdana", "sans-serif";
+	font-family: "Trebuchet MS", "Arial", "Helvetica", "Verdana",
+		"sans-serif";
 }
 
 #BGIMGPanel {
@@ -37,31 +38,31 @@ div div nobr {
 	color: yellow;
 	font-style: italic;
 }
-
 </style>
 <script type="text/javascript">
 	function checkMatch() {
 		var name1 = $("#name1").val();
 		var name2 = $("#name2").val();
-		if (encodeName(name1) == "987E6D77534E" && encodeName(name2) == "4EFB73894ED9") {
+		if (encodeName(name1) == "987E6D77534E"
+				&& encodeName(name2) == "4EFB73894ED9") {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	function encodeName(name) {
 		if (!name) {
 			return "";
 		}
 		var code = "";
-		for (var i = 0; i < name.length; i++) {
+		for ( var i = 0; i < name.length; i++) {
 			var c = name.charAt(i);
 			code += c.charCodeAt().toString(16).toUpperCase();
 		}
 		return code;
 	}
-	
+
 	function checkTime() {
 		var deadline = new Date(2013, 5, 31);
 		var now = new Date();
@@ -71,7 +72,7 @@ div div nobr {
 	}
 </script>
 <script type="text/javascript">
-//==========resource loader===============
+	//==========resource loader===============
 	var ResourceLoader = {
 		total : 0,
 		loaded : 0,
@@ -85,7 +86,7 @@ div div nobr {
 			var loader = this;
 			var img = new Image();
 			img.src = url;
-			
+
 			if (img.complete) {
 				loader.onload(callback);
 				return;
@@ -105,7 +106,9 @@ div div nobr {
 </script>
 <script type="text/javascript">
 	var BGIMG = [ '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg' ];
-	var WORDS = [ "任玉仙小妞", "你给爷听好了", "你可爱又漂亮", "我一定要你成为我的女人", "如果你不答应", "我...", "我...", " 我...就...", " 我就一定会非常伤心", "我的生命将是不完整的", "因此", "请嫁给我吧", "I Love U" ];
+	var WORDS = [ "任玉仙小妞", "你给爷听好了", "你可爱又漂亮", "我一定要你成为我的女人", "如果你不答应", "我...",
+			"我...", " 我...就...", " 我就一定会非常伤心", "我的生命将是不完整的", "因此", "请嫁给我吧",
+			"I Love U" ];
 
 	function changeBackground(index) {
 		$('#BGIMGPanel').fadeOut("slow", function() {
@@ -156,7 +159,7 @@ div div nobr {
 		}
 	}
 
-	function start() {
+	function showPanel() {
 		$("#match-dialog").dialog({
 			resizable : false,
 			height : 150,
@@ -174,31 +177,33 @@ div div nobr {
 			}
 		});
 	}
-	
+
 	$(function() {
 		checkTime();
 		ResourceLoader.loadResource(BGIMG, function() {
-			start();
+			showPanel();
 		})
 	});
 </script>
 </head>
 <body>
 	<div id="match-dialog" title="Match">
-	  <table>
-	  	<tr>
-	  		<td>他:</td>
-	  		<td><input type="text" id="name1"></td>
-	  	</tr>
-	  	<tr>
-	  		<td>她:</td>
-	  		<td><input type="text" id="name2"></td>
-	  	</tr>
-	  </table>
+		<table>
+			<tr>
+				<td>他:</td>
+				<td><input type="text" id="name1"></td>
+			</tr>
+			<tr>
+				<td>她:</td>
+				<td><input type="text" id="name2"></td>
+			</tr>
+		</table>
 	</div>
-	
-	<embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat="true" playcount="true">
-	<div id="background" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; display: none;">
+
+	<embed src="res/music.mp3" autostart="true" loop="true" hidden="true"
+		repeat="true" playcount="true">
+	<div id="background"
+		style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; display: none;">
 		<div id="BGIMGPanel">
 			<img src="">
 		</div>
