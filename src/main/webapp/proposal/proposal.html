@@ -38,9 +38,8 @@ body {
 	top: 100px;
 	margin-left: auto;
 	margin-right: auto;
-	overflow: visible;
-	font-size: 20px;
-	width: 100px;
+	text-align: center;
+	width: 800px;
 }
 
 div div nobr {
@@ -172,7 +171,7 @@ div div nobr {
 	function showPanel() {
 		$("#match-dialog").dialog({
 			resizable : false,
-			height : 150,
+			height : 160,
 			modal : true,
 			draggable : false,
 			buttons : {
@@ -198,7 +197,9 @@ div div nobr {
 </script>
 </head>
 <body>
-	<div id="loading">Loading...</div>
+	<div id="loading">
+		<img src="res/loading.gif">
+	</div>
 	<div id="match-dialog" title="Match" style="display: none;">
 		<table>
 			<tr>
