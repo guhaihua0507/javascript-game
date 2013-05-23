@@ -85,6 +85,7 @@ div div nobr {
 	var ResourceLoader = {
 		total : 0,
 		loaded : 0,
+		error : false,
 		loadResource : function(resList, callback) {
 			this.total = resList.length;
 			for ( var i = 0; i < BGIMG.length; i++) {
@@ -103,7 +104,15 @@ div div nobr {
 
 			img.onload = function() {
 				loader.onload(callback);
-			}
+			};
+			
+			img.onerror = function() {
+				if (this.error == true) {
+					return;
+				}
+				this.error = true;
+				alert("数据载入异常，你可以尝试刷新页面重新载入");
+			};
 		},
 		onload : function(callback) {
 			this.loaded += 1;
