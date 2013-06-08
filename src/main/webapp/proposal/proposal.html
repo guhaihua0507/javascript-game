@@ -87,14 +87,13 @@ div div nobr {
 		loaded : 0,
 		error : false,
 		loadResource : function(imgList, audio, callback) {
-			this.total = imgList.length + 1;
-			for ( var i = 0; i < BGIMG.length; i++) {
-				this.loadImage('res/' + BGIMG[i], callback);
+			this.total = imgList.length;
+			for ( var i = 0; i < imgList.length; i++) {
+				this.loadImageResource('res/' + imgList[i], callback);
 			}
-			this.loadAudio(audio, callback);
 		},
 		
-		loadImage : function(url, callback) {
+		loadImageResource : function(url, callback) {
 			var loader = this;
 			var img = new Image();
 			img.src = url;
@@ -117,17 +116,6 @@ div div nobr {
 			};
 		},
 		
-		loadAudio : function(audio, callback) {
-			var au = $("<embed hidden='true' autostart='true' loop='true' repeat='true' playcount='true'/>");
-			au.attr('src', audio);
-			var loader = this;
-			au.ready(function() {
-				loader.onload(callback);
-			});
-			
-			$(document.body).append(au);
-		},
-		
 		onload : function(callback) {
 			this.loaded += 1;
 			if (this.loaded >= this.total) {
@@ -138,9 +126,11 @@ div div nobr {
 </script>
 <script type="text/javascript">
 	var BGIMG = [ '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg' ];
-	var WORDS = [ "任玉仙小妞", "你给爷听好了", "你可爱又漂亮", "我一定要你成为我的女人", "如果你不答应", "我...",
-			"我...", " 我...就...", " 我就一定会非常伤心", "我的生命将是不完整的", "因此", "请嫁给我吧",
-			"I Love U" ];
+	
+	var WORDS = [ "这是一个关于爱情的故事", "这是一个关于生活的故事", "这是一个关于人生的故事", "这是属于我们两个人的故事",
+			"故事的前半部分是我们各自成长", "我找到了你", "你属于了我", "故事的后半部分在未来", "也许艰难险阻",
+			"也许荆棘丛生", "你是否愿意牵着我的手", "让我们共同完成", "共同开辟我们的未来", "属于我们两个人的故事",
+			"任玉仙小姐", "你是否愿意嫁给我" ];
 
 	function changeBackground(index) {
 		$('#BGIMGPanel').fadeOut("slow", function() {
@@ -212,7 +202,7 @@ div div nobr {
 
 	$(function() {
 		checkTime();
-		ResourceLoader.loadResource(BGIMG, 'res/music', function() {
+		ResourceLoader.loadResource(BGIMG, 'res/music.mp3', function() {
 			$("#loading").hide();
 			showPanel();
 		});
@@ -221,6 +211,10 @@ div div nobr {
 </head>
 <body>
 	<!-- <embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat="true" playcount="true"></embed> -->
+    <embed src="http://www.51119.com/play/swf/02.swf?file=http://ghh.co.nf/pp/res/music&width=150&songVolume=100&backColor=E8E8E8&frontColor=000000&autoStart=true&repeatPlay=true&showDownload=false" 
+    	width="0" height="0" quality="high" 
+    	pluginspage="http://www.macromedia.com/go/getflashplayer" 
+    	type="application/x-shockwave-flash"></embed>
 	
 	<div id="loading">
 		<img src="res/loading.gif">
