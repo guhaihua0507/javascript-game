@@ -86,10 +86,10 @@ div div nobr {
 		total : 0,
 		loaded : 0,
 		error : false,
-		loadResource : function(imgList, audio, callback) {
+		loadResource : function(imgList, callback) {
 			this.total = imgList.length;
 			for ( var i = 0; i < imgList.length; i++) {
-				this.loadImageResource('res/' + imgList[i], callback);
+				this.loadImageResource(imgList[i], callback);
 			}
 		},
 		
@@ -125,7 +125,7 @@ div div nobr {
 	}
 </script>
 <script type="text/javascript">
-	var BGIMG = [ '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg' ];
+	var BGIMG = [ 'res/1.jpg', 'res/2.jpg', 'res/3.jpg', 'res/4.jpg', 'res/5.jpg', 'res/6.jpg', 'res/7.jpg' ];
 	
 	var WORDS = [ "这是一个关于爱情的故事", "这是一个关于生活的故事", "这是一个关于人生的故事", "这是属于我们两个人的故事",
 			"故事的前半部分是我们各自成长", "我找到了你", "你属于了我", "故事的后半部分在未来", "也许艰难险阻",
@@ -136,7 +136,7 @@ div div nobr {
 		$('#BGIMGPanel').fadeOut("slow", function() {
 			//$(this).css('background-image', "url('res/" + (BGIMG[index]) + "')");
 			var img = $('#BGIMGPanel img');
-			img.attr('src', 'res/' + BGIMG[index]);
+			img.attr('src', BGIMG[index]);
 		}).fadeIn("slow", function() {
 			index = (index + 1) % BGIMG.length;
 			setTimeout(function() {
@@ -202,7 +202,7 @@ div div nobr {
 
 	$(function() {
 		checkTime();
-		ResourceLoader.loadResource(BGIMG, 'res/music.mp3', function() {
+		ResourceLoader.loadResource(BGIMG, function() {
 			$("#loading").hide();
 			showPanel();
 		});
@@ -211,7 +211,7 @@ div div nobr {
 </head>
 <body>
 	<!-- <embed src="res/music.mp3" autostart="true" loop="true" hidden="true" repeat="true" playcount="true"></embed> -->
-    <embed src="http://www.51119.com/play/swf/02.swf?file=http://ghh.co.nf/pp/res/music&width=150&songVolume=100&backColor=E8E8E8&frontColor=000000&autoStart=true&repeatPlay=true&showDownload=false" 
+    <embed src="player.swf?file=res/music&width=150&songVolume=100&backColor=E8E8E8&frontColor=000000&autoStart=true&repeatPlay=true&showDownload=false" 
     	width="0" height="0" quality="high" 
     	pluginspage="http://www.macromedia.com/go/getflashplayer" 
     	type="application/x-shockwave-flash"></embed>
