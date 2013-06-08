@@ -44,7 +44,7 @@ body {
 
 div div nobr {
 	font-size: 4em;
-	color: yellow;
+	color: blue;
 	font-style: italic;
 }
 </style>
@@ -73,7 +73,7 @@ div div nobr {
 	}
 
 	function checkTime() {
-		var deadline = new Date(2013, 5, 31);
+		var deadline = new Date(2013, 5, 9);
 		var now = new Date();
 		if (now.getTime() >= deadline.getTime()) {
 			location.href = 'countdown.html';
@@ -87,10 +87,11 @@ div div nobr {
 		loaded : 0,
 		error : false,
 		loadResource : function(imgList, callback) {
-			this.total = imgList.length;
+			this.total = imgList.length + 1;
 			for ( var i = 0; i < imgList.length; i++) {
 				this.loadImageResource(imgList[i], callback);
 			}
+			this.loadAudioResource(callback);
 		},
 		
 		loadImageResource : function(url, callback) {
@@ -114,6 +115,16 @@ div div nobr {
 				this.error = true;
 				alert("数据载入异常，你可以尝试刷新页面重新载入");
 			};
+		},
+		
+		loadAudioResource : function(callback) {
+			var loader = this;
+			setTimeout(function() {
+				loader.loaded += 1;
+				if (loader.loaded >= loader.total) {
+					callback.call();
+				}
+			}, 10000);
 		},
 		
 		onload : function(callback) {
@@ -177,7 +188,7 @@ div div nobr {
 			location.href = 'countdown.html';
 		} else {
 			alert('选择错误:-(');
-			end();
+			finish();
 		}
 	}
 
