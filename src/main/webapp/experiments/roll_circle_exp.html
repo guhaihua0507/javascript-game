@@ -1,0 +1,332 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+.main {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	width: 602px;
+}
+
+#controller {
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+</style>
+<script>
+	window.requestAnimFrame = (function(callback) {
+		return window.requestAnimationFrame
+				|| window.webkitRequestAnimationFrame
+				|| window.mozRequestAnimationFrame
+				|| window.oRequestAnimationFrame
+				|| window.msRequestAnimationFrame || function(callback) {
+					window.setTimeout(callback, 1000 / 60);
+				};
+	})();
+
+	function toRadians(angle) {
+		return angle * Math.PI / 180;
+	}
+</script>
+<script>
+	var Circle = function(x, y, radius) {
+		this.x = x;
+		this.y = y;
+		this.radius = radius;
+		this.speed = 1;
+		this.angle = 0;
+		this.drawLine = true;
+		this.strokeStyle = null;
+		this.cycleCount = 0;
+	}
+
+	Circle.prototype = {
+		draw : function(context) {
+			context.save();
+			context.translate(this.x, this.y);
+			context.rotate(toRadians(this.angle));
+			//draw cricle
+			context.beginPath();
+			if (this.strokeStyle) {
+				context.strokeStyle = this.strokeStyle;
+			}
+			context.arc(0, 0, this.radius, 0, 2 * Math.PI, false);
+			context.stroke();
+
+			//draw a line
+			if (this.drawLine) {
+				context.beginPath();
+				context.moveTo(0, 0);
+				context.lineTo(this.radius, 0);
+				context.stroke();
+			}
+
+			context.restore();
+		},
+
+		rotate : function(angle) {
+			this.angle = angle;
+		}
+	}
+
+	var CircleExperiment = function(canvas, params) {
+		this.canvas = document.getElementById(canvas);
+		this.centerX = this.canvas.width / 2;
+		this.centerY = this.canvas.height / 2;
+		this.components = [];
+		this.circle1 = null;
+		this.circle2 = null;
+		this.circle3 = null;
+		this.baseSpeed = 1;
+		this.orbitAngle2 = 0;
+		this.orbitAngle3 = 0;
+		this.finished2 = true;
+		this.finished3 = true;
+		this.stopped = true;
+		this.init(params);
+	}
+
+	CircleExperiment.prototype = {
+		init : function(params) {
+			this.components = [];
+
+			this.circle1 = new Circle(this.centerX, this.centerY,
+					params.radius1);
+			this.circle1.drawLine = false;
+			this.components.push(this.circle1);
+
+			if (params.display2) {
+				var radius2 = params.radius2;
+				this.circle2 = new Circle(this.centerX
+						+ (radius2 + this.circle1.radius), this.centerY,
+						params.radius2);
+				this.circle2.speed = params.speed2;
+				this.components.push(this.circle2);
+				this.finished2 = false;
+			}
+
+			if (params.display3) {
+				var radius3 = params.radius3;
+				this.circle3 = new Circle(this.centerX
+						+ (this.circle1.radius - radius3), this.centerY,
+						params.radius3);
+				this.circle3.speed = params.speed3;
+				this.components.push(this.circle3);
+				this.finished3 = false;
+			}
+
+			this.draw();
+		},
+
+		draw : function() {
+			var context = this.canvas.getContext('2d');
+			context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			for ( var i = 0; i < this.components.length; i++) {
+				this.components[i].draw(context);
+			}
+		},
+
+		start: function() {
+			this.stopped = false;
+			this.run();
+		},
+		
+		stop: function() {
+			this.stopped = true;
+		},
+		
+		run : function() {
+			if (this.stopped) {
+				return;
+			}
+			if (this.circle2 && !this.finished2) {
+				var circle = this.circle2;
+				this.orbitAngle2 += circle.speed;
+				if (this.orbitAngle2 > 360) {
+					this.orbitAngle2 = 360;
+					this.finished2 = true;
+				}
+				var center_radius = this.circle1.radius + circle.radius;
+				var radians = toRadians(this.orbitAngle2);
+				var newX = this.circle1.x + Math.cos(radians) * center_radius;
+				var newY = this.circle1.y - Math.sin(radians) * center_radius;
+				circle.x = newX;
+				circle.y = newY;
+				var rotateAngle = this.orbitAngle2 * center_radius
+						/ circle.radius;
+				circle.rotate(rotateAngle);
+
+				if (Math.floor(rotateAngle / 360) > circle.cycleCount) {
+					var c = new Circle(newX, newY, circle.radius);
+					c.drawLine = false;
+					c.strokeStyle = "Red";
+					circle.cycleCount++;
+					this.components.push(c);
+				}
+			}
+
+			if (this.circle3 && !this.finished3) {
+				var circle = this.circle3;
+				this.orbitAngle3 += circle.speed;
+				if (this.orbitAngle3 > 360) {
+					this.orbitAngle3 = 360;
+					this.finished3 = true;
+				}
+				var center_radius = this.circle1.radius - circle.radius;
+				var radians = toRadians(this.orbitAngle3);
+				var newX = this.circle1.x + Math.cos(radians) * center_radius;
+				var newY = this.circle1.y - Math.sin(radians) * center_radius;
+				circle.x = newX;
+				circle.y = newY;
+				var rotateAngle = this.orbitAngle3 * center_radius
+						/ circle.radius;
+				circle.rotate(rotateAngle);
+
+				if (Math.floor(rotateAngle / 360) > circle.cycleCount) {
+					var c = new Circle(newX, newY, circle.radius);
+					c.drawLine = false;
+					c.strokeStyle = "Blue";
+					circle.cycleCount++;
+					this.components.push(c);
+				}
+			}
+
+			this.draw();
+			
+			if (this.finished2 && this.finished3) {
+				this.showResult();
+				return;
+			}
+			
+			var self = this;
+			requestAnimFrame(function() {
+				self.run();
+			});
+		},
+		
+		showResult: function() {
+			var result = "";
+			if (this.circle2) {
+				result += "外圆滚动圈数:" + this.circle2.cycleCount + "\n";
+			}
+			if (this.circle3) {
+				result += "内圆滚动圈数:" + this.circle3.cycleCount;
+			}
+			alert(result);
+		}
+	}
+
+	function intVal(id) {
+		var o = document.getElementById(id);
+		if (o) {
+			return parseFloat(o.value);
+		} else {
+			return null;
+		}
+	}
+
+	function checked(id) {
+		var o = document.getElementById(id);
+		if (o) {
+			return o.checked;
+		} else {
+			return false;
+		}
+	}
+
+	var exp = null;
+	function play() {
+		var params = {};
+		params.radius1 = intVal("radius1");
+		params.radius2 = intVal("radius2");
+		params.radius3 = intVal("radius3");
+		params.speed2 = intVal("speed2");
+		params.speed3 = intVal("speed3");
+		params.display2 = checked("display2");
+		params.display3 = checked("display3");
+
+		if (!params.radius1) {
+			alert("请设置大圆半径");
+			return;
+		}
+
+		if (!params.display2 && !params.display3) {
+			alert("至少选择一个外圆或者内圆");
+			return;
+		}
+
+		if (params.display2) {
+			if (!params.radius2) {
+				alert("请设置外圆半径");
+				return;
+			}
+			if (!params.speed2) {
+				alert("请设置外圆速度");
+				return;
+			}
+		}
+		if (params.display3) {
+			if (!params.radius3) {
+				alert("请设置内圆半径");
+				return;
+			}
+			if (!params.speed3) {
+				alert("请设置内圆速度");
+				return;
+			}
+		}
+		if (exp) {
+			exp.stop();
+		}
+		exp = new CircleExperiment("myCanvas", params);
+		exp.start();
+	}
+</script>
+</head>
+<body>
+	<div class="main">
+		<div>
+			<canvas id="myCanvas" width="600" height="600"
+				style="border: 1px solid;">
+				Your browser does not support HTML5, you can use Chrome, Firefox, IE9 or later
+			</canvas>
+		</div>
+		<div>
+			<table id="controller" border="1">
+				<tr align="center">
+					<td width="100">圆</td>
+					<td width="150">半径</td>
+					<td width="150">速度</td>
+					<td width="40">显示</td>
+					<td rowspan="4"><input type="button" value="play"
+						onclick="play()"></td>
+				</tr>
+				<tr>
+					<td align="center">大圆</td>
+					<td><input type="text" id="radius1" value="150"></td>
+					<td>0</td>
+					<td align="center"><input type="checkbox" id="display1"
+						checked disabled="disabled"></td>
+				</tr>
+				<tr>
+					<td align="center">外圆</td>
+					<td><input type="text" id="radius2" value="50"></td>
+					<td><input type="text" id="speed2" value="1"></td>
+					<td align="center"><input type="checkbox" id="display2"
+						checked></td>
+				</tr>
+				<tr>
+					<td align="center">内圆</td>
+					<td><input type="text" id="radius3" value="50"></td>
+					<td><input type="text" id="speed3" value="1"></td>
+					<td align="center"><input type="checkbox" id="display3"
+						checked></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body>
+</html>
