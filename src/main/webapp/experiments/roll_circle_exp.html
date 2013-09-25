@@ -22,7 +22,8 @@
 				|| window.webkitRequestAnimationFrame
 				|| window.mozRequestAnimationFrame
 				|| window.oRequestAnimationFrame
-				|| window.msRequestAnimationFrame || function(callback) {
+				|| window.msRequestAnimationFrame 
+				|| function(callback) {
 					window.setTimeout(callback, 1000 / 60);
 				};
 	})();
@@ -37,7 +38,8 @@
 		this.y = y;
 		this.radius = radius;
 		this.speed = 1;
-		this.angle = 0;
+		this.rotateAngle = 0;	//自转角度
+		this.orbitAngle = 0;	//公转角度
 		this.drawLine = true;
 		this.strokeStyle = null;
 		this.cycleCount = 0;
@@ -47,7 +49,7 @@
 		draw : function(context) {
 			context.save();
 			context.translate(this.x, this.y);
-			context.rotate(toRadians(this.angle));
+			context.rotate(toRadians(this.rotateAngle));
 			//draw cricle
 			context.beginPath();
 			if (this.strokeStyle) {
@@ -68,7 +70,7 @@
 		},
 
 		rotate : function(angle) {
-			this.angle = angle;
+			this.rotateAngle = angle;
 		}
 	}
 
@@ -81,8 +83,6 @@
 		this.circle2 = null;
 		this.circle3 = null;
 		this.baseSpeed = 1;
-		this.orbitAngle2 = 0;
-		this.orbitAngle3 = 0;
 		this.finished2 = true;
 		this.finished3 = true;
 		this.stopped = true;
@@ -93,16 +93,14 @@
 		init : function(params) {
 			this.components = [];
 
-			this.circle1 = new Circle(this.centerX, this.centerY,
-					params.radius1);
+			this.circle1 = new Circle(this.centerX, this.centerY, params.radius1);
 			this.circle1.drawLine = false;
 			this.components.push(this.circle1);
 
 			if (params.display2) {
 				var radius2 = params.radius2;
-				this.circle2 = new Circle(this.centerX
-						+ (radius2 + this.circle1.radius), this.centerY,
-						params.radius2);
+				var x2 = this.centerX + (radius2 + this.circle1.radius)
+				this.circle2 = new Circle(x2, this.centerY, params.radius2);
 				this.circle2.speed = params.speed2;
 				this.components.push(this.circle2);
 				this.finished2 = false;
@@ -110,9 +108,8 @@
 
 			if (params.display3) {
 				var radius3 = params.radius3;
-				this.circle3 = new Circle(this.centerX
-						+ (this.circle1.radius - radius3), this.centerY,
-						params.radius3);
+				var x3 = this.centerX + (this.circle1.radius - radius3)
+				this.circle3 = new Circle(x3, this.centerY, params.radius3);
 				this.circle3.speed = params.speed3;
 				this.components.push(this.circle3);
 				this.finished3 = false;
@@ -144,20 +141,19 @@
 			}
 			if (this.circle2 && !this.finished2) {
 				var circle = this.circle2;
-				this.orbitAngle2 += circle.speed;
-				if (this.orbitAngle2 > 360) {
-					this.orbitAngle2 = 360;
+				circle.orbitAngle += circle.speed;
+				if (circle.orbitAngle > 360) {
+					circle.orbitAngle = 360;
 					this.finished2 = true;
 				}
 				var center_radius = this.circle1.radius + circle.radius;
-				var radians = toRadians(this.orbitAngle2);
+				var radians = toRadians(circle.orbitAngle);
 				var newX = this.circle1.x + Math.cos(radians) * center_radius;
 				var newY = this.circle1.y - Math.sin(radians) * center_radius;
 				circle.x = newX;
 				circle.y = newY;
-				var rotateAngle = this.orbitAngle2 * center_radius
-						/ circle.radius;
-				circle.rotate(rotateAngle);
+				var rotateAngle = circle.orbitAngle * center_radius / circle.radius;
+				circle.rotate(rotateAngle * -1);
 
 				if (Math.floor(rotateAngle / 360) > circle.cycleCount) {
 					var c = new Circle(newX, newY, circle.radius);
@@ -170,19 +166,18 @@
 
 			if (this.circle3 && !this.finished3) {
 				var circle = this.circle3;
-				this.orbitAngle3 += circle.speed;
-				if (this.orbitAngle3 > 360) {
-					this.orbitAngle3 = 360;
+				circle.orbitAngle += circle.speed;
+				if (circle.orbitAngle > 360) {
+					circle.orbitAngle = 360;
 					this.finished3 = true;
 				}
 				var center_radius = this.circle1.radius - circle.radius;
-				var radians = toRadians(this.orbitAngle3);
+				var radians = toRadians(circle.orbitAngle);
 				var newX = this.circle1.x + Math.cos(radians) * center_radius;
 				var newY = this.circle1.y - Math.sin(radians) * center_radius;
 				circle.x = newX;
 				circle.y = newY;
-				var rotateAngle = this.orbitAngle3 * center_radius
-						/ circle.radius;
+				var rotateAngle = circle.orbitAngle * center_radius / circle.radius;
 				circle.rotate(rotateAngle);
 
 				if (Math.floor(rotateAngle / 360) > circle.cycleCount) {
@@ -197,7 +192,7 @@
 			this.draw();
 			
 			if (this.finished2 && this.finished3) {
-				this.showResult();
+				this.stopped = true;
 				return;
 			}
 			
@@ -205,17 +200,6 @@
 			requestAnimFrame(function() {
 				self.run();
 			});
-		},
-		
-		showResult: function() {
-			var result = "";
-			if (this.circle2) {
-				result += "外圆滚动圈数:" + this.circle2.cycleCount + "\n";
-			}
-			if (this.circle3) {
-				result += "内圆滚动圈数:" + this.circle3.cycleCount;
-			}
-			alert(result);
 		}
 	}
 
@@ -284,6 +268,21 @@
 		exp = new CircleExperiment("myCanvas", params);
 		exp.start();
 	}
+	
+	function showResult() {
+		if (exp == null || !exp.stopped) {
+			return;
+		}
+		var result = "";
+		if (exp.circle2) {
+			result += "外圆滚动圈数:" + exp.circle2.cycleCount + "\n";
+		}
+		if (exp.circle3) {
+			result += "内圆滚动圈数:" + exp.circle3.cycleCount;
+		}
+		alert(result);
+	}
+	
 </script>
 </head>
 <body>
@@ -301,8 +300,10 @@
 					<td width="150">半径</td>
 					<td width="150">速度</td>
 					<td width="40">显示</td>
-					<td rowspan="4"><input type="button" value="play"
-						onclick="play()"></td>
+					<td rowspan="4">
+						<input type="button" value="开始" onclick="play()"><br>
+						<input type="button" value="结果" onclick="showResult()">
+					</td>
 				</tr>
 				<tr>
 					<td align="center">大圆</td>
