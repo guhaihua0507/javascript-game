@@ -296,10 +296,12 @@
 		}
 		var result = "";
 		if (exp.circle2) {
-			result += "外圆滚动圈数:" + exp.circle2.cycleCount + "\n";
+			var cycle = Math.floor(Math.abs(exp.circle2.rotateAngle) / 360);
+			result += "外圆滚动圈数:" + cycle + "\n";
 		}
 		if (exp.circle3) {
-			result += "内圆滚动圈数:" + exp.circle3.cycleCount;
+			var cycle = Math.floor(Math.abs(exp.circle3.rotateAngle) / 360);
+			result += "内圆滚动圈数:" + cycle;
 		}
 		alert(result);
 	}
